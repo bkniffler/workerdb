@@ -3,6 +3,20 @@
   "private": true,
   "version": "0.0.1",
   "license": "MIT",
+  "keywords": [
+    "react",
+    "fela",
+    "ui",
+    "javascript"
+  ],
+  "author": "Benjamin Kniffler <bkniffler@me.com>",
+  "bugs": {
+    "url": "https://github.com/bkniffler/workerdb"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bkniffler/workerdb.git"
+  },
   "workspaces": [
     "packages/*"
   ],
@@ -12,6 +26,7 @@
     "build": "lerna run build",
     "clean-all": "rm -rf ./node_modules && rm -rf ./packages/*/node_modules && rm -rf ./packages/*/lib",
     "dev": "lerna run --parallel dev",
+    "lp": "lerna publish",
     "test": "jest",
     "coverage": "codecov"
   },

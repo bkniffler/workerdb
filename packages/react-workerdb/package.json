@@ -4,6 +4,20 @@
   "license": "MIT",
   "main": "lib/index.js",
   "typings": "lib/index.d.js",
+  "keywords": [
+    "react",
+    "fela",
+    "ui",
+    "javascript"
+  ],
+  "author": "Benjamin Kniffler <bkniffler@me.com>",
+  "bugs": {
+    "url": "https://github.com/bkniffler/workerdb"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bkniffler/workerdb.git"
+  },
   "scripts": {
     "build": "tsc -p ./tsconfig.json",
     "clean": "rimraf ./lib",
