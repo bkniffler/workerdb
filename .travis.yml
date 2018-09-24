@@ -2,6 +2,8 @@ language: node_js
 node_js:
   - '8'
 sudo: false
+install:
+  - npm install -g codecov
 script:
   - yarn bootstrap
   - yarn build
