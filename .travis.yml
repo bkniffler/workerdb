@@ -9,10 +9,9 @@ cache:
 
 install:
   - yarn
-  - yarn global add codecov
 
 script:
   - yarn bootstrap
   - yarn build
   - yarn test
-  - yarn codecov
+  - yarn coverage
