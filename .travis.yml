@@ -1,11 +1,18 @@
 language: node_js
 node_js:
   - '8'
+
 sudo: false
+cache:
+  directories:
+    - 'node_modules'
+
 install:
-  - npm install -g codecov
+  - yarn
+  - yarn global add codecov
+
 script:
   - yarn bootstrap
   - yarn build
   - yarn test
-  - codecov
+  - yarn codecov
