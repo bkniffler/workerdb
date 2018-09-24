@@ -1,0 +1,43 @@
+{
+  "name": "workerdb-monorepo",
+  "private": true,
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/faker": "^4.1.1",
+    "@types/jest": "^23.3.2",
+    "@types/node": "^10.10.3",
+    "generator-elderfo-typescript-project": "^2.0.1",
+    "jest": "^23.6.0",
+    "lerna": "^3.4.0",
+    "ts-jest": "^23.10.1",
+    "typescript": "^3.0.3",
+    "yo": "^2.0.0"
+  },
+  "scripts": {
+    "up": "yarn upgrade-interactive --latest",
+    "bootstrap": "lerna bootstrap",
+    "build": "lerna run build",
+    "clean-all": "rm -rf ./node_modules && rm -rf ./packages/*/node_modules && rm -rf ./packages/*/lib && rm -rf ./tools/*/node_modules",
+    "dev": "lerna run --parallel dev",
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "generate-package": "yo elderfo-typescript-project:package"
+  },
+  "workspaces": [
+    "packages/*",
+    "tools/*"
+  ],
+  "jest": {
+    "preset": "ts-jest",
+    "collectCoverageFrom": [
+      "packages/*/src/**/*.ts"
+    ],
+    "coverageReporters": [
+      "html",
+      "cobertura",
+      "text"
+    ]
+  }
+}

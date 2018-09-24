@@ -1,0 +1,30 @@
+{
+  "name": "workerdb",
+  "version": "0.0.1",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.js",
+  "scripts": {
+    "build": "tsc -p ./tsconfig.json",
+    "clean": "rimraf ./lib",
+    "dev": "tsc -p ./tsconfig.json -w",
+    "prebuild": "yarn run clean",
+    "predev": "yarn run clean",
+    "test": "jest -c ../../jest.json"
+  },
+  "dependencies": {
+    "pouchdb-adapter-http": "^7.0.0",
+    "pouchdb-adapter-idb": "^7.0.0",
+    "pouchdb-adapter-memory": "^7.0.0",
+    "pouchdb-core": "^7.0.0",
+    "rxdb": "^8.0.1",
+    "rxjs": "^6.3.2"
+  },
+  "devDependencies": {
+    "faker": "^4.1.0",
+    "jest": "^23.6.0",
+    "rimraf": "^2.6.2",
+    "ts-jest": "^23.10.1",
+    "typescript": "^3.0.3"
+  }
+}

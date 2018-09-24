@@ -1,0 +1,28 @@
+{
+  "name": "react-workerdb",
+  "version": "0.0.1",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.js",
+  "scripts": {
+    "build": "tsc -p ./tsconfig.json",
+    "clean": "rimraf ./lib",
+    "dev": "tsc -p ./tsconfig.json -w",
+    "prebuild": "yarn run clean",
+    "predev": "yarn run clean",
+    "test": "jest -c ../../jest.json"
+  },
+  "devDependencies": {
+    "@types/react": "^16.4.14",
+    "react": "^16.4.2",
+    "faker": "^4.1.0",
+    "jest": "^23.6.0",
+    "rimraf": "^2.6.2",
+    "ts-jest": "^23.10.1",
+    "typescript": "^3.0.3"
+  },
+  "peerDependencies": {
+    "react": "^16.4.2",
+    "workerdb": "^0.14.10"
+  }
+}
