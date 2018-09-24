@@ -6,3 +6,4 @@ script:
   - yarn bootstrap
   - yarn build
   - yarn test
+  - codecov
