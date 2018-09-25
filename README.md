@@ -9,12 +9,6 @@
   <a href="https://codecov.io/github/bkniffler/workerdb">
     <img src="https://img.shields.io/codecov/c/github/bkniffler/workerdb.svg?style=flat-square" alt="Coverage Status">
   </a>
-  <a href="https://www.npmjs.com/package/workerdb">
-    <img src="https://img.shields.io/npm/dm/workerdb.svg?style=flat-square" alt="Downloads">
-  </a>
-  <a href="https://github.com/bkniffler/workerdb">
-    <img src="https://img.shields.io/github/issues/bkniffler/workerdb.svg?style=flat-square" alt="Issues">
-  </a>
   <a href="https://github.com/bkniffler/workerdb">
     <img src="http://img.shields.io/npm/v/workerdb.svg?style=flat-square" alt="Version">
   </a>
