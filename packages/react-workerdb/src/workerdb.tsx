@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { WorkerDB, WorkerDBWorker, WorkerDBProxy } from 'workerdb';
+import { WorkerDB, WorkerDBWorker } from 'workerdb';
 import Context from './context';
 import SyncContext from './sync/context';
 import render, { RenderProps } from './factory/render';
@@ -8,7 +8,7 @@ interface WorkerDBCreateWorker {
   (): WorkerDBWorker;
 }
 
-interface ReactWorkerDBProps extends RenderProps {
+interface ReactWorkerDBProps extends RenderProps<WorkerDB> {
   worker: WorkerDBCreateWorker | WorkerDBWorker;
   name?: string;
   onReady?: Function;
@@ -17,57 +17,51 @@ interface ReactWorkerDBProps extends RenderProps {
 
 export default class ReactWorkerDB extends React.Component<ReactWorkerDBProps> {
   state: {
-    ready: boolean;
+    db: any;
     syncing: boolean;
-    proxy: WorkerDBProxy<any> | null;
     error: Error | null;
   } = {
-    ready: false,
+    db: null,
     syncing: false,
-    proxy: null,
     error: null
   };
   db: WorkerDB;
 
-  componentDidMount() {
-    const { worker, name = 'db' } = this.props;
-    const db = new WorkerDB(
+  async componentDidMount() {
+    const { onReady, onError, worker, name = 'db' } = this.props;
+
+    const db = await WorkerDB.create(
       typeof worker === 'function' ? worker() : worker,
-      this.listener
+      {
+        name,
+        onSyncing: (syncing: boolean) => this.setState({ syncing }),
+        onError: (error: Error) => {
+          if (onError) {
+            onError(error);
+          }
+          this.setState({ error });
+        }
+      }
     );
-    db.init({ name });
-    this.db = db;
+
+    this.setState({ db });
+    if (onReady) {
+      onReady(db);
+    }
   }
 
   componentWillUnmount() {
-    this.db.close();
+    this.state.db.close();
   }
-
-  listener = (name: string, value: any) => {
-    const { onReady, onError } = this.props;
-    if (name === 'ready') {
-      if (onReady) {
-        onReady(value);
-      }
-      this.setState({ proxy: value, ready: true });
-    } else if (name === 'syncing') {
-      this.setState({ syncing: value });
-    } else if (name === 'error') {
-      if (onError) {
-        onError(value);
-      }
-      this.setState({ error: value });
-    }
-  };
 
   render() {
     return (
-      <Context.Provider value={this.state.proxy}>
+      <Context.Provider value={this.state.db}>
         <SyncContext.Provider value={this.state.syncing}>
           {render(this.props, {
-            loading: !this.state.ready,
+            loading: !this.state.db,
             error: this.state.error,
-            value: this.state.proxy
+            value: this.state.db
           })}
         </SyncContext.Provider>
       </Context.Provider>

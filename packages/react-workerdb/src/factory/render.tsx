@@ -1,4 +1,4 @@
-export default (props: RenderProps, state: any) => {
+export default (props: RenderProps<any>, state: any) => {
   const {
     error: handleError,
     render: handleRender,
@@ -20,9 +20,9 @@ export default (props: RenderProps, state: any) => {
   return children;
 };
 
-export interface RenderProps {
-  error?: Function;
-  render?: Function;
-  loading?: Function;
-  children?: Function | React.ReactNode;
+export interface RenderProps<T> {
+  error?: (error: Error) => React.ReactNode;
+  render?: (data: T) => React.ReactNode;
+  loading?: (loading: boolean) => React.ReactNode;
+  children?: (data: T | any) => React.ReactNode | React.ReactNode;
 }

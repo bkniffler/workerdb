@@ -1,8 +1,9 @@
 import * as React from 'react';
+import { WorkerDB } from 'workerdb';
 import Context from '../context';
 import renderMethod, { RenderProps } from './render';
 
-export interface RenderPropsWithCollection extends RenderProps {
+export interface RenderPropsWithCollection extends RenderProps<any> {
   collection: string;
   defaultValue?: any;
   live?: boolean;
@@ -10,7 +11,7 @@ export interface RenderPropsWithCollection extends RenderProps {
 
 export interface RenderPropsWithCollectionAndDB
   extends RenderPropsWithCollection {
-  db: any;
+  db?: WorkerDB;
 }
 
 export default (method: string): React.ReactNode => {
@@ -36,10 +37,14 @@ export default (method: string): React.ReactNode => {
         live,
         ...rest
       } = this.props;
+      if (!db) {
+        return;
+      }
       if (live) {
-        this.unlisten = db[collection][method](rest, this.cb);
+        this.unlisten = db.c(collection)[method](rest, this.cb);
       } else {
-        db[collection][method](rest)
+        db.c(collection)
+          [method](rest)
           .then((value: any) => this.cb(null, value))
           .catch((err: Error) => this.cb(err, null));
       }

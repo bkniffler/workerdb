@@ -102,15 +102,16 @@ worker([
 You need to wrap your app with the `WorkerDB` provider. You may then use `Find`, `FindOne` and `Database` components.
 
 ```jsx
-import { WorkerDB, Find, Database } from 'react-workerdb';
+import { WorkerDB, Find, Collection } from 'react-workerdb';
 
 const worker = new Worker('./worker.js');
 export default () => (
   <WorkerDB worker={worker} loading={() => 'Is loading ...'}>
     <div>
-      <Database
-        render={db => (
-          <button onClick={() => db.bird.insert({ name: 'Filou' })}>
+      <Collection
+        name="bird"
+        render={collection => (
+          <button onClick={() => collection.insert({ name: 'Filou' })}>
             Add Bird
           </button>
         )}
@@ -133,4 +134,23 @@ export default () => (
 
 ### Vanilla
 
-TBD
+```jsx
+import { WorkerDB, WorkerDBWorker, WorkerDBProxy } from 'workerdb';
+const worker = new Worker('./worker.js');
+
+const stuff = async () => {
+  const db = await WorkerDB.create(worker, {
+    name: 'db',
+    onSyncing: active => console.log(active),
+    onError: err => console.error(err)
+  });
+  const collection = db.collection('bird');
+
+  await collection.insert({ name: 'Filou' });
+  const birds = await collection.find({});
+
+  db.close();
+};
+
+stuff();
+```

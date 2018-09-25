@@ -1,33 +1,53 @@
-const methods = ['findOne', 'find', 'insert'];
-
 export interface WorkerDBWorker {
-  onmessage: any | null;
+  onmessage?: Function;
   postMessage: (data: any) => void;
   terminate: Function;
 }
 
-export interface WorkerDBListener {
-  (channel: string, value: any): any;
+export interface WorkerDBSyncing {
+  (value: boolean): void;
+}
+
+export interface WorkerDBError {
+  (value: Error): void;
+}
+
+export interface WorkerDBOptions {
+  name?: string;
+  adapter?: string;
+  onError?: WorkerDBError;
+  onSyncing?: WorkerDBSyncing;
+}
+
+export interface WorkerDBCollection {
+  findOne: (value?: any) => any;
+  find: (value?: any) => any;
+  insert: (value: any) => any;
 }
 
 export interface WorkerDBCallback {
   (error: Error | null, value?: any): any;
 }
 
-export type WorkerDBProxy<T> = {
-  get(): T;
-  set(value: T): void;
-};
-
-export default class WorkerDB {
+class WorkerDB {
   worker: WorkerDBWorker;
-  listener: WorkerDBListener;
-  proxy: WorkerDBProxy<any>;
+  onError?: WorkerDBError;
+  onSyncing?: WorkerDBSyncing;
 
-  constructor(worker: WorkerDBWorker, listener: WorkerDBListener) {
+  static create = (
+    worker: WorkerDBWorker,
+    options: WorkerDBOptions = {}
+  ): Promise<WorkerDB> => {
+    const { name, adapter, onError, onSyncing } = options;
+    const db = new WorkerDB(worker);
+    db.onError = onError;
+    db.onSyncing = onSyncing;
+    return db.init({ name, adapter });
+  };
+
+  constructor(worker: WorkerDBWorker) {
     this.worker = worker;
     this.worker.onmessage = this.onMessage;
-    this.listener = listener;
   }
 
   listeners = {};
@@ -36,11 +56,11 @@ export default class WorkerDB {
 
   // Send a query to database, either callbase (watch) or promise (once)
   query = (
-    collection: string,
+    collection: string | null,
     type: string,
     value: any,
-    cb: null | WorkerDBCallback
-  ) => {
+    cb?: WorkerDBCallback
+  ): Promise<any> | Function => {
     const { id } = this;
     this.id += 1;
 
@@ -72,7 +92,6 @@ export default class WorkerDB {
           method: 'stop'
         });
     }
-
     return new Promise((yay, nay) => {
       this.listeners[id] = listener((err, val) => (err ? nay(err) : yay(val)));
       send();
@@ -82,53 +101,40 @@ export default class WorkerDB {
   // Listen to messages from webworker
   onMessage = (event: MessageEvent) => {
     const { data } = event;
-    if (data.type === 'ready') {
-      const { query } = this;
-      const collectionMethod = (name: string) => {
-        const handler = {
-          get(obj: any, propName: string) {
-            if (methods.indexOf(propName) === -1) {
-              throw new Error(`${propName} is not supported`);
-              // return undefined;
-            }
-            return (dd: any, cb: WorkerDBCallback) =>
-              query(name, propName, dd, cb);
-          }
-        };
-        return new Proxy({ method: true }, handler);
-      };
-      const collection = new Proxy(
-        { collection: true },
-        {
-          get(obj: any, propName: string) {
-            return collectionMethod(propName);
-          }
-        }
-      );
-      this.proxy = collection;
-      this.listener('ready', this.proxy);
-    } else if (data.type === 'syncing') {
-      this.listener('syncing', data.value);
-    } else if (data.type === 'error') {
-      this.listener('error', data.value);
-    } else if (methods.indexOf(data.type) && this.listeners[data.id]) {
+    if (data.type === 'syncing' && this.onSyncing) {
+      this.onSyncing(data.value);
+    } else if (data.type === 'error' && this.onError) {
+      this.onError(data.value);
+    } else if (this.listeners[data.id]) {
       this.listeners[data.id](data.value);
     }
   };
 
-  init(value: any) {
-    this.send({ type: 'init', value });
-  }
+  c = (name: string): WorkerDBCollection => this.collection(name);
+  collection = (name: string): WorkerDBCollection => {
+    const { query } = this;
+    const handler = {
+      get(obj: any, propName: string) {
+        return (dd: any, cb: WorkerDBCallback) => query(name, propName, dd, cb);
+      }
+    };
+    return new Proxy({ method: true }, handler);
+  };
+
+  init = async (value: any): Promise<WorkerDB> => {
+    await this.query('', 'init', value);
+    return this;
+  };
 
   // Send message to webworker
   send = (data: any) => {
     this.worker.postMessage(data);
   };
 
-  getProxy = () => this.proxy;
-
   // Close Database
   close = () => {
     this.worker.terminate();
   };
 }
+
+export default WorkerDB;

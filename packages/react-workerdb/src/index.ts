@@ -1,6 +1,7 @@
 // React Core
 export { default as WorkerDB } from './workerdb';
 export { default as Database } from './database';
+export { default as Collection } from './collection';
 
 // React Sync
 export { default as Syncing } from './sync/consumer';

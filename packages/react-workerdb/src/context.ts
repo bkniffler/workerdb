@@ -1,4 +1,4 @@
 import { createContext } from 'react';
-import { WorkerDBProxy } from 'workerdb';
+import { WorkerDB } from 'workerdb';
 
-export default createContext<WorkerDBProxy<any> | null>(null);
+export default createContext<WorkerDB | undefined>(undefined);

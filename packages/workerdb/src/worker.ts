@@ -42,11 +42,10 @@ export const inner = (
       await db.destroy();
     }
     db = await rx.create({
-      adapter: 'idb',
+      name: data.name || 'db',
+      adapter: data.adapter || 'idb',
       multiInstance: false,
-      queryChangeDetection: true,
-      name: 'db',
-      ...data
+      queryChangeDetection: true
     });
     const states = await Promise.all(
       collections.map(col =>
@@ -97,7 +96,10 @@ export const inner = (
     if (data.type === 'init') {
       createDB(data.value)
         .then(() => {
-          send({ type: 'ready' });
+          send({
+            id: data.id,
+            type: 'ready'
+          });
         })
         .catch(error => send({ type: 'error', error }));
     } else if (data.type === 'stop') {

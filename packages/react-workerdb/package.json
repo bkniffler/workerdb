@@ -33,11 +33,10 @@
     "react": "^16.4.2",
     "rimraf": "^2.6.2",
     "ts-jest": "^23.10.1",
-    "typescript": "^3.0.3",
-    "workerdb": "^0.0.2"
+    "typescript": "^3.0.3"
   },
   "peerDependencies": {
     "react": "^16.4.2",
-    "workerdb": "^0.0.1"
+    "workerdb": "0.0.2"
   }
 }
