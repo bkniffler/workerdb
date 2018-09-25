@@ -11,7 +11,8 @@ install:
   - yarn
 
 script:
-  - yarn bootstrap
+  - cd packages/workerdb && yarn link
+  - cd packages/react-workerdb && yarn link workerdb
   - yarn build
   - yarn test
   - yarn coverage
