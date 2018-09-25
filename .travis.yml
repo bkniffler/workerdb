@@ -8,8 +8,8 @@ cache: yarn
 
 install:
   - yarn
-  - cd packages/workerdb && yarn link
-  - cd packages/react-workerdb && yarn link workerdb
+  - cd $TRAVIS_BUILD_DIR/packages/workerdb && yarn link
+  - cd $TRAVIS_BUILD_DIR/packages/react-workerdb && yarn link workerdb
 
 script:
   - yarn build
