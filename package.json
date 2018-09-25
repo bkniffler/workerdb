@@ -34,6 +34,7 @@
   ],
   "scripts": {
     "up": "yarn upgrade-interactive --latest",
+    "netlify": "yarn build && cd example/react && yarn && yarn build",
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build",
     "clean": "rm -rf ./node_modules && rm -rf ./packages/*/node_modules && rm -rf ./packages/*/lib",

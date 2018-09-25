@@ -1,0 +1,4 @@
+[build]
+  base    = "site"
+  publish = "example/react/dist"
+  command = "yarn netlify"
