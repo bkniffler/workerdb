@@ -1,8 +1,22 @@
 import 'jest';
-import { inner } from '../src/worker';
+import worker, { inner } from '../src/worker';
 
 describe('index', () => {
   it('should be able to be included', () => {
+    worker([
+      {
+        name: 'bird',
+        schema: {
+          type: 'object',
+          version: 0,
+          properties: {
+            name: { type: 'string' }
+          }
+        }
+      }
+    ]);
+  });
+  it('should be able to be start', () => {
     let resolved = false;
     return new Promise((yay, nay) => {
       const listener = inner(

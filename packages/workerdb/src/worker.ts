@@ -140,7 +140,6 @@ export const inner = (
     } else if (['insert'].indexOf(data.type) !== -1) {
       db[data.collection]
         [data.type](data.value)
-        .exec()
         .then((value: any) =>
           send({
             id: data.id,

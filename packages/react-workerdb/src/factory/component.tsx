@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { WorkerDB } from 'workerdb';
-import Context from '../context';
+import { WorkerDBCollection } from 'workerdb';
+import Collection from '../collection';
 import renderMethod, { RenderProps } from './render';
 
 export interface RenderPropsWithCollection extends RenderProps<any> {
@@ -11,7 +11,7 @@ export interface RenderPropsWithCollection extends RenderProps<any> {
 
 export interface RenderPropsWithCollectionAndDB
   extends RenderPropsWithCollection {
-  db?: WorkerDB;
+  col: WorkerDBCollection;
 }
 
 export default (method: string): React.ReactNode => {
@@ -32,19 +32,15 @@ export default (method: string): React.ReactNode => {
         render,
         loading,
         children,
+        col,
         collection,
-        db,
         live,
         ...rest
       } = this.props;
-      if (!db) {
-        return;
-      }
       if (live) {
-        this.unlisten = db.c(collection)[method](rest, this.cb);
+        this.unlisten = col[method](rest, this.cb);
       } else {
-        db.c(collection)
-          [method](rest)
+        col[method](rest)
           .then((value: any) => this.cb(null, value))
           .catch((err: Error) => this.cb(err, null));
       }
@@ -74,9 +70,10 @@ export default (method: string): React.ReactNode => {
   }
 
   const OuterComponent: React.SFC<RenderPropsWithCollection> = props => (
-    <Context.Consumer>
-      {db => <InnerComponent {...props} db={db} />}
-    </Context.Consumer>
+    <Collection
+      name={props.collection}
+      render={col => <InnerComponent {...props} col={col} />}
+    />
   );
   OuterComponent.displayName = name;
   return OuterComponent;

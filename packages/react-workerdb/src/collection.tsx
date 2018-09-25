@@ -8,7 +8,11 @@ interface RenderPropsCollection extends RenderProps<WorkerDBCollection> {
 }
 const WorkerDBCollection = (props: RenderPropsCollection) => (
   <Context.Consumer>
-    {value => render(props, { value: value && value.c(props.name) })}
+    {value =>
+      render(props, {
+        value: value && value.c(props.name)
+      })
+    }
   </Context.Consumer>
 );
 
