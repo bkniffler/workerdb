@@ -6,9 +6,22 @@
   "types": "lib/index.d.js",
   "keywords": [
     "react",
-    "fela",
-    "ui",
-    "javascript"
+    "webworker",
+    "db",
+    "database",
+    "offline-first",
+    "nosql",
+    "jsonschema",
+    "rxjs",
+    "pwa",
+    "localstorage",
+    "indexeddb",
+    "encryption",
+    "pouchdb",
+    "couchdb",
+    "rx",
+    "reactive",
+    "realtime"
   ],
   "author": "Benjamin Kniffler <bkniffler@me.com>",
   "bugs": {
