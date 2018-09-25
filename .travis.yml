@@ -9,10 +9,10 @@ cache:
 
 install:
   - yarn
-
-script:
   - cd packages/workerdb && yarn link
   - cd packages/react-workerdb && yarn link workerdb
+
+script:
   - yarn build
   - yarn test
   - yarn coverage
