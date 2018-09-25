@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - '8'
+  - '10'
 
 sudo: false
 
@@ -8,10 +8,8 @@ cache: yarn
 
 install:
   - yarn
-  - cd $TRAVIS_BUILD_DIR/packages/workerdb && yarn link
-  - cd $TRAVIS_BUILD_DIR/packages/react-workerdb && yarn link workerdb
+  - yarn bootstrap
 
 script:
-  - yarn build
   - yarn test
   - yarn coverage

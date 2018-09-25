@@ -17,12 +17,5 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true
-  },
-  "exclude": [
-    "**/*.test.ts",
-    "**/test.config.ts",
-    "node_modules",
-    "**/lib/*",
-    "**/*.d.ts"
-  ]
+  }
 }

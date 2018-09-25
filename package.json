@@ -24,6 +24,7 @@
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build",
     "clean-all": "rm -rf ./node_modules && rm -rf ./packages/*/node_modules && rm -rf ./packages/*/lib",
+    "dev2": "lerna run --parallel dev",
     "dev": "lerna run --parallel dev",
     "lp": "lerna publish --registry https://registry.npmjs.org",
     "test": "jest",

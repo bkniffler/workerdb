@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "license": "MIT",
   "main": "lib/index.js",
-  "typings": "lib/index.d.js",
+  "types": "lib/index.d.js",
   "keywords": [
     "react",
     "fela",
@@ -19,12 +19,12 @@
     "url": "https://github.com/bkniffler/workerdb.git"
   },
   "scripts": {
+    "dev": "tsc -p ./tsconfig.json -w",
     "build": "tsc -p ./tsconfig.json",
     "clean": "rimraf ./lib",
-    "dev": "tsc -p ./tsconfig.json -w",
     "prebuild": "yarn run clean",
     "predev": "yarn run clean",
-    "test": "jest -c ../../jest.json"
+    "test": "jest"
   },
   "dependencies": {
     "pouchdb-adapter-http": "^7.0.0",
