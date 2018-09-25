@@ -64,7 +64,8 @@ export default (method: string): React.ReactNode => {
       return renderMethod(this.props, {
         error: this.state.error,
         loading: this.state.loading,
-        value: this.state.value || this.props.defaultValue
+        value: this.state.value || this.props.defaultValue,
+        value2: this.props.col
       });
     }
   }

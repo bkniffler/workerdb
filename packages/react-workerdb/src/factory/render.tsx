@@ -10,19 +10,19 @@ export default (props: RenderProps<any>, state: any) => {
     return handleError(state.error);
   } else if (handleLoading && state.loading) {
     return handleLoading(state.loading);
-  } else if (handleRender) {
-    return handleRender(state.value);
+  } else if (handleRender && !state.loading) {
+    return handleRender(state.value, state.value2);
   }
 
   if (children && typeof children === 'function') {
     return children(state);
   }
-  return children;
+  return children || null;
 };
 
 export interface RenderProps<T> {
   error?: (error: Error) => React.ReactNode;
-  render?: (data: T) => React.ReactNode;
+  render?: (data: T, data2?: any) => React.ReactNode;
   loading?: (loading: boolean) => React.ReactNode;
   children?: (data: T | any) => React.ReactNode | React.ReactNode;
 }

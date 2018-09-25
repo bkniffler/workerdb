@@ -140,7 +140,29 @@ export const inner = (
             error: error.message
           })
         );
-    } else if (['insert'].indexOf(data.type) !== -1) {
+    } else if (['remove'].indexOf(data.type) !== -1) {
+      const value = data.value || {};
+      const query = db[data.collection].findOne(
+        value.id || value._id || value // eslint-disable-line
+      );
+      return query[data.type]()
+        .then((value: any) =>
+          send({
+            id: data.id,
+            type: data.type,
+            value: Array.isArray(value)
+              ? value.map(x => x.toJSON())
+              : value.toJSON()
+          })
+        )
+        .catch((error: Error) =>
+          send({
+            id: data.id,
+            type: data.type,
+            error: error.message
+          })
+        );
+    } else if (['insert', 'upsert'].indexOf(data.type) !== -1) {
       return db[data.collection]
         [data.type](data.value)
         .then((value: any) =>
