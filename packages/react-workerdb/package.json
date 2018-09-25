@@ -19,19 +19,14 @@
     "url": "https://github.com/bkniffler/workerdb.git"
   },
   "scripts": {
-    "dev": "tsc -p ./tsconfig.json -w",
-    "build": "tsc -p ./tsconfig.json",
-    "clean": "rimraf ./lib",
-    "prebuild": "yarn run clean",
-    "predev": "yarn run clean",
+    "dev": "tsc -w",
+    "build": "tsc",
     "test": "jest"
   },
   "devDependencies": {
     "@types/react": "^16.4.14",
-    "faker": "^4.1.0",
     "jest": "^23.6.0",
     "react": "^16.4.2",
-    "rimraf": "^2.6.2",
     "ts-jest": "^23.10.1",
     "typescript": "^3.0.3",
     "workerdb": "^0.0.2"
