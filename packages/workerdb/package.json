@@ -1,6 +1,6 @@
 {
   "name": "workerdb",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/index.d.js",
