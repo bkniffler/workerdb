@@ -102,13 +102,16 @@ export const inner = (
           });
         })
         .catch(error => send({ type: 'error', error }));
+    } else if (data.type === 'close') {
+      return db.destroy();
     } else if (data.type === 'stop') {
       listeners[data.id].unsubscribe();
     } else if (['find', 'findOne'].indexOf(data.type) !== -1) {
+      const value = data.value || {};
       const query = db[data.collection][data.type](
-        data.value.id || data.value._id || data.value // eslint-disable-line
+        value.id || value._id || value // eslint-disable-line
       );
-      if (data.live !== false) {
+      if (data.live === true) {
         listeners[data.id] = query.$.subscribe((value: any) => {
           send({
             id: data.id,
@@ -119,7 +122,7 @@ export const inner = (
           });
         });
       }
-      query
+      return query
         .exec()
         .then((value: any) =>
           send({
@@ -138,7 +141,7 @@ export const inner = (
           })
         );
     } else if (['insert'].indexOf(data.type) !== -1) {
-      db[data.collection]
+      return db[data.collection]
         [data.type](data.value)
         .then((value: any) =>
           send({
