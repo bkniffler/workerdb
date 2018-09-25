@@ -71,7 +71,7 @@ class WorkerDB {
       if (data && data.error) {
         return callback(data.error);
       }
-      return callback(null, data);
+      return callback(null, data.value);
     };
 
     const send = () =>
@@ -101,12 +101,13 @@ class WorkerDB {
   // Listen to messages from webworker
   onMessage = (event: MessageEvent) => {
     const { data } = event;
+    if (this.listeners[data.id]) {
+      this.listeners[data.id](data);
+    }
     if (data.type === 'syncing' && this.onSyncing) {
       this.onSyncing(data.value);
     } else if (data.type === 'error' && this.onError) {
       this.onError(data.value);
-    } else if (this.listeners[data.id]) {
-      this.listeners[data.id](data.value);
     }
   };
 
