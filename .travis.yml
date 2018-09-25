@@ -11,5 +11,6 @@ install:
   - yarn bootstrap
 
 script:
+  - yarn build
   - yarn test
   - yarn coverage
