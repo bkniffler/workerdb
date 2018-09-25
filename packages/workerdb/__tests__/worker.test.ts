@@ -43,6 +43,27 @@ describe('index', () => {
     expect(results[2][0]).toBeTruthy();
     expect(results[2][0].name).toBe('Filou');
   });
+  it('should be able to live query', async () => {
+    let invocations = 0;
+    let results: Array<any> = [];
+    const listener = await getWorker((data: any) => {
+      invocations += 1;
+      results.push(data.value);
+    });
+    await listener({ id: 1, type: 'find', live: true, collection: 'bird' });
+    await listener({
+      type: 'insert',
+      value: { name: 'Filou' },
+      collection: 'bird'
+    });
+    await listener({ id: 1, type: 'stop', live: true, collection: 'bird' });
+    await listener({
+      type: 'insert',
+      value: { name: 'Filou' },
+      collection: 'bird'
+    });
+    expect(invocations).toBe(4);
+  });
 });
 
 const getWorker = (cb?: Function): Promise<Function> => {
