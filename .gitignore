@@ -3,3 +3,6 @@
 coverage
 node_modules
 packages/**/lib
+example/**/dist
+example/**/.cache
+yarn-error.log

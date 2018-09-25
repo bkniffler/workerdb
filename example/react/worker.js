@@ -1,24 +1,13 @@
-import { worker } from 'workerdb';
+import { worker } from '../../packages/workerdb';
 
 worker([
   {
-    name: 'bird',
+    name: 'todo',
     schema: {
       version: 0,
       properties: {
-        name: { type: 'string' }
-      }
-    },
-    sync: {
-      remote: `https://my-server.com/bird`,
-      waitForLeadership: false,
-      direction: {
-        pull: true,
-        push: false
-      },
-      options: {
-        live: true,
-        retry: true
+        title: { type: 'string' },
+        completed: { type: 'boolean' }
       }
     }
   }
