@@ -31,49 +31,44 @@
   <br />
 </div>
 
+**WORK IN PROGRESS**
+
 ## Bindings
 
-- react (react-workerdb)
+- [react](https://github.com/bkniffler/workerdb/tree/master/packages/react-workerdb)
+- vanilla: The database can be used with or without any framework
 
 ## Why
 
-PouchDB is a great database that, out of the box, enables you to build your sync-enabled apps easily. With RxDB on top you have better performance on bigger datasets as well as reactivity using RxJS and even more features like field-based encryption, schema validation/migration and more.
+[PouchDB](https://github.com/pouchdb/pouchdb) is a great database that, out of the box, enables you to build your sync-enabled apps easily. With [RxDB](https://github.com/pubkey/rxdb) on top you have better performance on bigger datasets as well as reactivity using RxJS and even more features like field-based encryption, schema validation/migration and more.
 
 But if you want to build an app with lots of data, you may hit some issues with your app getting laggy due to the database querying, realtime syncing etc. all sogging up your UI thread resources. You can try and use different native pouchdb adapters like leveldb or sqlite, but this may only make the queries go faster. This is where WorkerDB comes into the game.
 
 WorkerDB sits inside a WebWorker, which will, if possible, use a different CPU thread than your main app. All the heavy DB lifting happens inside the webworker, while the UI thread will only send commands to and receive results from the webworker.
 
-## Example (React)
+## Install
 
-```jsx
-// your index.js
-import { WorkerDB, Find, Database } from 'react-workerdb';
+### Yarn
 
-export default () => (
-  <WorkerDB
-    worker={() => new WebWorker('./worker.js')}
-    loading={() => 'Is loading ...'}
-  >
-    <div>
-      <Database
-        render={db => (
-          <button onClick={() => db.bird.insert({ name: 'Filou' })}>
-            Add Bird
-          </button>
-        )}
-      />
-      <Find
-        live
-        collection="bird"
-        render={docs => <span>There is {docs.length} birds</span>}
-      />
-    </div>
-  </WorkerDB>
-);
+```
+yarn add workerdb react-workerdb
 ```
 
+### NPM
+
+```
+npm i workerdb react-workerdb
+```
+
+## How to Use
+
+Wether you use it with or without react, you will need to create a worker.js. The worker.js will define your database schema and host the database. Then you may use the react bindings or vanilla to instanciate the worker and query your data.
+
+### Worker.Js
+
+For seeing all possible schema options, please check out RxDB docs [here](https://pubkey.github.io/rxdb/rx-schema.html#example). There is just one additional property added `sync`. If this is defined, the collection will use the provided options to start syncing.
+
 ```jsx
-// your wroker.js
 import { worker } from 'workerdb';
 
 worker([
@@ -82,7 +77,8 @@ worker([
     schema: {
       version: 0,
       properties: {
-        name: { type: 'string' }
+        name: { type: 'string' },
+        age: { type: 12 }
       }
     },
     sync: {
@@ -100,3 +96,41 @@ worker([
   }
 ]);
 ```
+
+### React
+
+You need to wrap your app with the `WorkerDB` provider. You may then use `Find`, `FindOne` and `Database` components.
+
+```jsx
+import { WorkerDB, Find, Database } from 'react-workerdb';
+
+const worker = new Worker('./worker.js');
+export default () => (
+  <WorkerDB worker={worker} loading={() => 'Is loading ...'}>
+    <div>
+      <Database
+        render={db => (
+          <button onClick={() => db.bird.insert({ name: 'Filou' })}>
+            Add Bird
+          </button>
+        )}
+      />
+      <Find
+        live
+        collection="bird"
+        render={docs => <span>There is {docs.length} birds</span>}
+      />
+      <Find
+        live
+        collection="bird"
+        name={{ $regex: /f/i }}
+        render={docs => <span>There is {docs.length} birds</span>}
+      />
+    </div>
+  </WorkerDB>
+);
+```
+
+### Vanilla
+
+TBD
