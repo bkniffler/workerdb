@@ -16,7 +16,7 @@
     <img src="https://img.shields.io/github/issues/bkniffler/workerdb.svg?style=flat-square" alt="Issues">
   </a>
   <a href="https://github.com/bkniffler/workerdb">
-    <img src="https://img.shields.io/github/package-json/v/bkniffler/workerdb.svg?style=flat-square" alt="Version">
+    <img src="http://img.shields.io/npm/v/workerdb.svg?style=flat-square" alt="Version">
   </a>
   <a href="https://github.com/bkniffler/workerdb">
     <img src="https://img.shields.io/github/forks/bkniffler/workerdb.svg?style=flat-square" alt="Forks">
