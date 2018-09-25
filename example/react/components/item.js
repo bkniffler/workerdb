@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import classNames from 'classNames';
+import classNames from 'classnames';
 import { ESCAPE_KEY, ENTER_KEY } from './constants';
 
 export default class TodoItem extends Component {

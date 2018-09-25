@@ -1,5 +1,5 @@
 import React from 'react';
-import classNames from 'classNames';
+import classNames from 'classnames';
 import { pluralize } from './utils';
 import { ALL_TODOS, ACTIVE_TODOS, COMPLETED_TODOS } from './constants';
 
