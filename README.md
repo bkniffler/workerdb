@@ -19,10 +19,7 @@
     <img src="http://img.shields.io/npm/v/workerdb.svg?style=flat-square" alt="Version">
   </a>
   <a href="https://github.com/bkniffler/workerdb">
-    <img src="https://img.shields.io/github/forks/bkniffler/workerdb.svg?style=flat-square" alt="Forks">
-  </a>
-  <a href="https://github.com/bkniffler/workerdb">
-    <img src="https://img.shields.io/github/stars/bkniffler/workerdb.svg?style=flat-square" alt="Stars">
+    <img src="https://img.shields.io/badge/language-typescript-blue.svg?style=flat-square" alt="Language">
   </a>
   <a href="https://github.com/bkniffler/workerdb/master/LICENSE">
     <img src="https://img.shields.io/github/license/bkniffler/workerdb.svg?style=flat-square" alt="License">
