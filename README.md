@@ -1,6 +1,6 @@
 <div align="center">
   <h2>WorkerDB</h2>
-  <strong>Reactive, offline-first, syncable Database in WebWorker based on PouchDB/RxDB, great for electronJS and web-applications</strong>
+  <strong>Performant, Reactive, offline-first, syncable Database in WebWorker based on PouchDB/RxDB, great for electronJS and web-applications</strong>
   <br />
   <br />
   <a href="https://travis-ci.org/bkniffler/workerdb">
