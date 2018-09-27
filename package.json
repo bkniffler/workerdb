@@ -56,7 +56,8 @@
     "preset": "ts-jest",
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "packages/*/src/**/*.ts"
+      "packages/*/src/**/*.ts",
+      "packages/*/src/**/*.tsx"
     ],
     "coverageReporters": [
       "html",
