@@ -22,8 +22,6 @@
   <br />
 </div>
 
-**WORK IN PROGRESS**
-
 ## Bindings
 
 - [react](https://github.com/bkniffler/workerdb/tree/master/packages/react-workerdb)
