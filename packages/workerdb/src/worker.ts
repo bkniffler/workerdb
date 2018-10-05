@@ -99,6 +99,7 @@ export const inner = (
       return db.destroy();
     } else if (data.type === 'stop') {
       listeners[data.id].unsubscribe();
+      delete listeners[data.id];
     } else if (['active'].indexOf(data.type) !== -1) {
       listeners[data.id] = replicationStates[data.collection].subscribe(
         (value: boolean) => {

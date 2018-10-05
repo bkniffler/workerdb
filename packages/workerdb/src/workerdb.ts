@@ -89,7 +89,7 @@ class WorkerDB {
       return () =>
         this.send({
           id,
-          method: 'stop'
+          type: 'stop'
         });
     }
     return new Promise((yay, nay) => {
