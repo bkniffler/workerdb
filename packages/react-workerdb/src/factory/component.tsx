@@ -8,6 +8,11 @@ export interface RenderPropsWithCollection extends RenderProps<any> {
   collection: string;
   defaultValue?: any;
   live?: boolean;
+  transform?: (item: any) => any;
+  map?: (item: any) => any;
+  error?: any;
+  render?: any;
+  loading?: any;
 }
 
 export interface RenderPropsWithCollectionAndDB
@@ -28,15 +33,17 @@ export default (method: string): React.ReactNode => {
     unlisten?: Function;
     prevProps?: any;
 
-    update(props: any) {
+    update(props: RenderPropsWithCollectionAndDB) {
       const {
         error,
         render,
         loading,
         children,
         col,
+        map,
         collection,
         live,
+        transform,
         ...rest
       } = props;
       if (!col) {
@@ -46,6 +53,7 @@ export default (method: string): React.ReactNode => {
       } else if (this.prevProps) {
         this.removeListener();
       }
+
       // this.setState({ loading: true });
       this.prevProps = rest;
       if (live) {
@@ -77,8 +85,15 @@ export default (method: string): React.ReactNode => {
     }
 
     cb = (error: Error | null, value: any) => {
+      const { map, transform } = this.props;
       if (error) {
         this.setState({ loading: false, error });
+      } else if (transform) {
+        value = transform(value);
+        this.setState({ loading: false, value });
+      } else if (map) {
+        value = Array.isArray(value) ? value.map(map) : map(value);
+        this.setState({ loading: false, value });
       } else {
         this.setState({ loading: false, value });
       }
