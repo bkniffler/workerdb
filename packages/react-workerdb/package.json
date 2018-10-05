@@ -47,5 +47,8 @@
   "peerDependencies": {
     "react": "^16.4.2",
     "workerdb": "0.0.2"
+  },
+  "dependencies": {
+    "fast-deep-equal": "^2.0.1"
   }
 }

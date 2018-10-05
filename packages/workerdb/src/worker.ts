@@ -1,3 +1,5 @@
+import { combineLatest } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import RxDB, { RxCollectionCreator, RxDatabase, RxDatabaseCreator } from 'rxdb';
 
 declare const self: Worker;
@@ -34,67 +36,53 @@ export const inner = (
   send: WorkerSender,
   addPlugins?: Function
 ) => {
-  let db: RxDatabase;
+  let _db: Promise<RxDatabase>;
+  let replicationStates: any;
   const listeners = {};
   const rx = addPlugins ? addPlugins(RxDB) : RxDB;
   const createDB = async (data: RxDatabaseCreator) => {
-    if (db) {
+    if (_db) {
+      const db = await _db;
       await db.destroy();
     }
-    db = await rx.create({
+    _db = rx.create({
       name: data.name || 'db',
       adapter: data.adapter || 'idb',
       multiInstance: false,
       queryChangeDetection: true
     });
-    const states = await Promise.all(
+    const db = await _db;
+    replicationStates = {};
+    await Promise.all(
       collections.map(col =>
         db.collection(col).then(c => {
           if (col.sync) {
-            return c.sync(col.sync);
+            replicationStates[c.name] = c.sync(col.sync);
           }
-          return undefined;
+          return c;
         })
       )
     );
-    const replicationStates = {};
-    states.forEach((state, i) => {
-      if (!state) {
-        return;
+    combineLatest(
+      ...Object.keys(replicationStates).map(
+        key => replicationStates[key].active$
+      ),
+      (...results: Array<boolean>) => {
+        return results.indexOf(true) !== -1;
       }
-      const { name } = collections[i];
-      replicationStates[name] = {};
-      state.active$.subscribe(active => {
-        replicationStates[name].active = active;
-        const isActive =
-          Object.keys(replicationStates)
-            .map(x => replicationStates[x].active)
-            .indexOf(true) !== -1;
+    )
+      .pipe(distinctUntilChanged())
+      .subscribe(value => {
         send({
           type: 'syncing',
-          value: isActive
+          value
         });
       });
-      /* state.alive$.subscribe(alive => {
-        replicationStates[name].alive = alive;
-        const isAlive =
-          Object.keys(replicationStates)
-            .map(x => replicationStates[x].alive)
-            .indexOf(true) !== -1;
-        worker.postMessage({
-          type: 'alive',
-          alive: isAlive
-        });
-      }); */
-      state.error$.subscribe(error => {
-        send({ type: 'error', error });
-      });
-    });
   };
 
   return async (data: any) => {
     if (data.type === 'init') {
-      createDB(data.value)
+      return createDB(data.value)
         .then(() => {
           send({
             id: data.id,
@@ -102,10 +90,25 @@ export const inner = (
           });
         })
         .catch(error => send({ type: 'error', error }));
-    } else if (data.type === 'close') {
+    }
+    const db = await _db;
+    if (!db) {
+      throw new Error('Not initialized');
+    }
+    if (data.type === 'close') {
       return db.destroy();
     } else if (data.type === 'stop') {
       listeners[data.id].unsubscribe();
+    } else if (['active'].indexOf(data.type) !== -1) {
+      listeners[data.id] = replicationStates[data.collection].subscribe(
+        (value: boolean) => {
+          send({
+            id: data.id,
+            type: data.type,
+            value
+          });
+        }
+      );
     } else if (['find', 'findOne'].indexOf(data.type) !== -1) {
       const value = data.value || {};
       const query = db[data.collection][data.type](

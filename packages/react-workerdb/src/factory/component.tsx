@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { WorkerDBCollection } from 'workerdb';
+import * as equal from 'fast-deep-equal';
 import Collection from '../collection';
 import renderMethod, { RenderProps } from './render';
 
@@ -24,9 +25,10 @@ export default (method: string): React.ReactNode => {
       error: null,
       value: null
     };
-    unlisten: Function;
+    unlisten?: Function;
+    prevProps?: any;
 
-    componentDidMount() {
+    update(props: any) {
       const {
         error,
         render,
@@ -36,7 +38,16 @@ export default (method: string): React.ReactNode => {
         collection,
         live,
         ...rest
-      } = this.props;
+      } = props;
+      if (!col) {
+        return;
+      } else if (this.prevProps && equal(this.prevProps, rest)) {
+        return;
+      } else if (this.prevProps) {
+        this.removeListener();
+      }
+      // this.setState({ loading: true });
+      this.prevProps = rest;
       if (live) {
         this.unlisten = col[method](rest, this.cb);
       } else {
@@ -46,10 +57,23 @@ export default (method: string): React.ReactNode => {
       }
     }
 
-    componentWillUnmount() {
+    removeListener() {
       if (this.unlisten) {
         this.unlisten();
       }
+      this.unlisten = undefined;
+    }
+
+    componentDidMount() {
+      this.update(this.props);
+    }
+
+    componentDidUpdate() {
+      this.update(this.props);
+    }
+
+    componentWillUnmount() {
+      this.removeListener();
     }
 
     cb = (error: Error | null, value: any) => {
