@@ -7,6 +7,7 @@ import FactoryComponent, {
 export interface FindProps<T, TResult> extends RenderPropsWithCollection<T> {
   transform?: (item: T) => TResult;
   collection: string;
+  sort: string;
 }
 
 class Find<T, TResult> extends React.Component<FindProps<T, TResult>> {

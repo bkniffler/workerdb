@@ -9,6 +9,7 @@ export interface FindProps<T, TResult>
   transform?: (orginal: Array<T>) => TResult;
   // map?: (orginal: T) => TMap;
   collection: string;
+  sort: string;
 }
 
 class Find<T, TResult> extends React.Component<FindProps<T, TResult>> {

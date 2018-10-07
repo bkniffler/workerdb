@@ -164,10 +164,17 @@ export const inner = (
           })
         );
     } else if (['find', 'findOne'].indexOf(data.type) !== -1) {
-      const value = data.value || {};
-      const query = db[data.collection][data.type](
-        value.id || value._id || value // eslint-disable-line
-      );
+      const {
+        id,
+        _id,
+        sort,
+        ...rest
+      }: { id: any; _id: any; sort?: string; [x: string]: any } =
+        data.value || {};
+      const query = db[data.collection][data.type](id || _id || rest);
+      if (sort) {
+        query.sort(sort);
+      }
       if (data.live === true) {
         listeners[data.id] = query.$.subscribe((value: any) => {
           send({

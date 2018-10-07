@@ -43,6 +43,7 @@ describe('index', () => {
           <FindBird
             collection={COLLECTION.BIRD}
             transform={data => data.map(({ name }) => name)}
+            sort="name"
             render={data => (
               <React.Fragment>
                 {data.map(x => (

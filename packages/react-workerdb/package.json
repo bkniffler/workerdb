@@ -53,5 +53,6 @@
   },
   "dependencies": {
     "fast-deep-equal": "^2.0.1"
-  }
+  },
+  "gitHead": "53245d385e2ab5d78542b4e786dd7a5114f13609"
 }
