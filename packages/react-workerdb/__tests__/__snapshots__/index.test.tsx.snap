@@ -3,10 +3,11 @@
 exports[`index should work 1`] = `
 <div>
   <span>
-    Filou
-  </span>
-  <span>
     Oscar
   </span>
+  <span>
+    Filou
+  </span>
+  Filou
 </div>
 `;

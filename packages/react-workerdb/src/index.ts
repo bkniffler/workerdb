@@ -9,3 +9,4 @@ export { default as Syncing } from './sync/consumer';
 // React Methods
 export { default as FindOne } from './query/find-one';
 export { default as Find } from './query/find';
+export { default as Call } from './query/call';

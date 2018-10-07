@@ -2,7 +2,7 @@ import 'jest';
 import * as wait from 'wait-for-expect';
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
-import { Find, WorkerDB } from '../src';
+import { Find, WorkerDB, Call } from '../src';
 import { inner } from '../../workerdb/src/worker';
 
 describe('index', () => {
@@ -18,6 +18,7 @@ describe('index', () => {
 
     const COLLECTION = { BIRD: 'bird' };
     const FindBird = Find.ofType<XType, Array<string>>();
+    const CallBird = Call.ofType<XType, string>();
 
     let listener: any;
     listener = await getWorker(data => worker.onmessage({ data }));
@@ -52,6 +53,11 @@ describe('index', () => {
               </React.Fragment>
             )}
           />
+          <CallBird
+            collection={COLLECTION.BIRD}
+            method="custom"
+            render={data => <React.Fragment>{data}</React.Fragment>}
+          />
         </div>
       </WorkerDB>
     );
@@ -81,7 +87,11 @@ const getWorker = (cb: (data: any) => void): Function => {
           }
         },
         methods: {
-          custom: (col: any, value: any) => col.find(value)
+          custom: (col: any, value: any) =>
+            col
+              .findOne({ name: 'Filou' })
+              .exec()
+              .then((x: any) => x.name)
         }
       }
     ],

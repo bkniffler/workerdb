@@ -144,25 +144,33 @@ export const inner = (
               : value.toJSON()
           });
         });
+      } else if (query.exec) {
+        return query
+          .exec()
+          .then((value: any) =>
+            send({
+              id: data.id,
+              type: data.type,
+              value: Array.isArray(value)
+                ? value.map(x => x.toJSON())
+                : value.toJSON()
+            })
+          )
+          .catch((error: Error) =>
+            send({
+              id: data.id,
+              type: data.type,
+              error: error.message
+            })
+          );
+      } else {
+        const result = await query;
+        send({
+          id: data.id,
+          type: data.type,
+          value: result
+        });
       }
-      return query
-        .exec()
-        .then((value: any) =>
-          send({
-            id: data.id,
-            type: data.type,
-            value: Array.isArray(value)
-              ? value.map(x => x.toJSON())
-              : value.toJSON()
-          })
-        )
-        .catch((error: Error) =>
-          send({
-            id: data.id,
-            type: data.type,
-            error: error.message
-          })
-        );
     } else if (['find', 'findOne'].indexOf(data.type) !== -1) {
       const {
         id,
