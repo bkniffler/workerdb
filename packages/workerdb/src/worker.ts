@@ -26,7 +26,7 @@ export default (
   webworker = self
 ) => {
   const listener = inner(collections, webworker.postMessage);
-  webworker.onmessage = async event => {
+  webworker.onmessage = event => {
     const { data } = event;
     listener(data);
   };
@@ -35,7 +35,8 @@ export default (
 export const inner = (
   collections: Array<RxCollectionCreatorWithSync>,
   send: WorkerSender,
-  addPlugins?: Function
+  addPlugins?: Function,
+  init?: Function
 ) => {
   let _db: Promise<RxDatabase>;
   let replicationStates: any;
@@ -81,18 +82,23 @@ export const inner = (
           value
         });
       });
+    return db;
   };
 
   return async (data: any) => {
     if (data.type === 'init') {
-      return createDB(data.value)
-        .then(() => {
-          send({
-            id: data.id,
-            type: 'ready'
-          });
-        })
-        .catch(error => send({ type: 'error', error }));
+      try {
+        const db = await createDB(data.value);
+        if (init) {
+          await init(db);
+        }
+        send({
+          id: data.id,
+          type: 'ready'
+        });
+      } catch (error) {
+        send({ type: 'error', error });
+      }
     }
     const db = await _db;
     if (!db) {

@@ -57,7 +57,7 @@
   },
   "jest": {
     "preset": "ts-jest",
-    "collectCoverage": true,
+    "collectCoverage": false,
     "collectCoverageFrom": [
       "packages/*/src/**/*.ts",
       "packages/*/src/**/*.tsx"

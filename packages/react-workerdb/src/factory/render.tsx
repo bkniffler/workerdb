@@ -24,5 +24,5 @@ export interface RenderProps<T> {
   error?: (error: Error) => React.ReactNode;
   render?: (data: T, data2?: any) => React.ReactNode;
   loading?: (loading: boolean) => React.ReactNode;
-  children?: (data: T | any) => React.ReactNode | React.ReactNode;
+  children?: React.ReactNode | ((data: T | any) => React.ReactNode);
 }

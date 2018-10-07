@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`index should work 1`] = `
+<div>
+  <span>
+    Filou
+  </span>
+  <span>
+    Oscar
+  </span>
+</div>
+`;

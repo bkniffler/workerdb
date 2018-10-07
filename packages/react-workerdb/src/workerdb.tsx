@@ -11,6 +11,7 @@ interface WorkerDBCreateWorker {
 interface ReactWorkerDBProps extends RenderProps<WorkerDB> {
   worker: WorkerDBCreateWorker | WorkerDBWorker;
   name?: string;
+  adapter?: string;
   onReady?: Function;
   onError?: Function;
 }
@@ -28,12 +29,13 @@ export default class ReactWorkerDB extends React.Component<ReactWorkerDBProps> {
   db: WorkerDB;
 
   async componentDidMount() {
-    const { onReady, onError, worker, name = 'db' } = this.props;
+    const { onReady, onError, worker, name = 'db', adapter } = this.props;
 
     const db = await WorkerDB.create(
       typeof worker === 'function' ? worker() : worker,
       {
         name,
+        adapter,
         onSyncing: (syncing: boolean) => this.setState({ syncing }),
         onError: (error: Error) => {
           if (onError) {
