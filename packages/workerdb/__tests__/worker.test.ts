@@ -16,7 +16,7 @@ describe('index', () => {
       }
     ]);
   });
-  it('should be able to be start', async () => {
+  it('should be able to start', async () => {
     const listener = await getWorker();
     await listener({ type: 'close' });
   });
@@ -62,7 +62,42 @@ describe('index', () => {
       value: { name: 'Filou' },
       collection: 'bird'
     });
+    await listener({ type: 'close' });
     expect(invocations).toBe(4);
+  });
+  it('should be able to call custom', async () => {
+    let invocations = 0;
+    let results: Array<any> = [];
+    const listener = await getWorker((data: any) => {
+      invocations += 1;
+      results.push(data.value);
+    });
+    await listener({
+      id: 1,
+      type: 'call:custom',
+      collection: 'bird'
+    });
+    await listener({ type: 'close' });
+    expect(invocations).toBe(1);
+  });
+  it('should be able to throw if method not found', async () => {
+    let invocations = 0;
+    let results: Array<any> = [];
+    const listener = await getWorker((data: any) => {
+      invocations += 1;
+      results.push(data.value);
+    });
+    try {
+      await listener({
+        id: 1,
+        type: 'call:custom2',
+        live: true,
+        collection: 'bird'
+      });
+    } catch (err) {
+      expect(invocations).toBe(0);
+    }
+    await listener({ type: 'close' });
   });
 });
 
@@ -79,6 +114,9 @@ const getWorker = (cb?: Function): Promise<Function> => {
             properties: {
               name: { type: 'string' }
             }
+          },
+          methods: {
+            custom: (col: any, value: any) => col.find(value)
           }
         }
       ],

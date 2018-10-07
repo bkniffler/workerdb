@@ -6,6 +6,7 @@ declare const self: Worker;
 
 interface RxCollectionCreatorWithSync extends RxCollectionCreator {
   sync?: any;
+  methods?: any;
 }
 
 interface WorkerMessageBody {
@@ -40,6 +41,7 @@ export const inner = (
   let replicationStates: any;
   const listeners = {};
   const rx = addPlugins ? addPlugins(RxDB) : RxDB;
+  const customMethods = {};
   const createDB = async (data: RxDatabaseCreator) => {
     if (_db) {
       const db = await _db;
@@ -56,6 +58,7 @@ export const inner = (
     await Promise.all(
       collections.map(col =>
         db.collection(col).then(c => {
+          customMethods[c.name] = col.methods;
           if (col.sync) {
             replicationStates[c.name] = c.sync(col.sync);
           }
@@ -110,6 +113,50 @@ export const inner = (
           });
         }
       );
+    } else if (data.type.indexOf('call:') === 0) {
+      const n = data.type.substr(5);
+      const value = data.value || {};
+      if (
+        !customMethods[data.collection] ||
+        !customMethods[data.collection][n]
+      ) {
+        throw new Error(
+          `Custom method ${n} not found in collection ${data.collection}`
+        );
+      }
+      const query = customMethods[data.collection][n](
+        db[data.collection],
+        value.id || value._id || value // eslint-disable-line
+      );
+      if (data.live === true && query.$.subscribe) {
+        listeners[data.id] = query.$.subscribe((value: any) => {
+          send({
+            id: data.id,
+            type: data.type,
+            value: Array.isArray(value)
+              ? value.map(x => x.toJSON())
+              : value.toJSON()
+          });
+        });
+      }
+      return query
+        .exec()
+        .then((value: any) =>
+          send({
+            id: data.id,
+            type: data.type,
+            value: Array.isArray(value)
+              ? value.map(x => x.toJSON())
+              : value.toJSON()
+          })
+        )
+        .catch((error: Error) =>
+          send({
+            id: data.id,
+            type: data.type,
+            error: error.message
+          })
+        );
     } else if (['find', 'findOne'].indexOf(data.type) !== -1) {
       const value = data.value || {};
       const query = db[data.collection][data.type](
