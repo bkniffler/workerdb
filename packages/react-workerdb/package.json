@@ -1,6 +1,6 @@
 {
   "name": "react-workerdb",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/index.d.js",
@@ -43,7 +43,7 @@
     "ts-jest": "^23.10.4",
     "typescript": "^3.1.2",
     "wait-for-expect": "^1.0.1",
-    "workerdb": "^0.0.11"
+    "workerdb": "^0.0.12"
   },
   "peerDependencies": {
     "react": "^16.4.2",
