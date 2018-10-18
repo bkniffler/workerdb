@@ -24,14 +24,13 @@ describe('index', () => {
     listener = await getWorker(data => worker.onmessage({ data }));
     let ready = true;
     let error: any = null;
-    let terminated = false;
     const worker = {
       // postMessage: (data: any) => worker['onme' + 'ssage']({ data }),
       onmessage: (data: any) => data,
       postMessage: (data: any) => {
         listener(data);
       },
-      terminate: () => (terminated = true)
+      terminate: () => {}
     };
     const component = renderer.create(
       <WorkerDB
