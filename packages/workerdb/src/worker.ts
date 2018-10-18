@@ -177,7 +177,7 @@ export const inner = (
         _id,
         sort,
         ...rest
-      }: { id: any; _id: any; sort?: string; [x: string]: any } =
+      }: { id: any; _id: any; sort?: string;[x: string]: any } =
         data.value || {};
       const query = db[data.collection][data.type](id || _id || rest);
       if (sort) {
@@ -236,7 +236,7 @@ export const inner = (
         );
     } else if (['insert', 'upsert'].indexOf(data.type) !== -1) {
       return db[data.collection]
-        [data.type](data.value)
+      [data.type](data.value)
         .then((value: any) =>
           send({
             id: data.id,

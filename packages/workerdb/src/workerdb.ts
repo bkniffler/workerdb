@@ -1,5 +1,5 @@
 export interface WorkerDBWorker {
-  onmessage?: Function;
+  onmessage: ((this: any, ev: any) => any) | null;
   postMessage: (data: any) => void;
   terminate: Function;
 }

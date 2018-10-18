@@ -15,7 +15,7 @@ export default (props: RenderProps<any>, state: any) => {
   }
 
   if (children && typeof children === 'function') {
-    return children(state);
+    return (children as Function)(state);
   }
   return children || null;
 };

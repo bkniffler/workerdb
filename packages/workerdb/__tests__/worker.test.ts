@@ -7,7 +7,6 @@ describe('index', () => {
       {
         name: 'bird',
         schema: {
-          type: 'object',
           version: 0,
           properties: {
             name: { type: 'string' }
@@ -109,7 +108,6 @@ const getWorker = (cb?: Function): Promise<Function> => {
         {
           name: 'bird',
           schema: {
-            type: 'object',
             version: 0,
             properties: {
               name: { type: 'string' }
