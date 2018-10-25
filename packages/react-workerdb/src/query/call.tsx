@@ -32,7 +32,7 @@ class Call<T, TResult> extends React.Component<CallProps<T, TResult>> {
           <FactoryComponent
             {...props}
             transform={this.transform}
-            method={`call:${method}`}
+            method={method}
             collection={col}
           />
         )}

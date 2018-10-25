@@ -119,41 +119,24 @@ export const inner = (
           });
         }
       );
-    } else if (data.type.indexOf('call:') === 0) {
-      const n = data.type.substr(5);
-      const value = data.value || {};
-      if (
-        !customMethods[data.collection] ||
-        !customMethods[data.collection][n]
-      ) {
-        throw new Error(
-          `Custom method ${n} not found in collection ${data.collection}`
-        );
-      }
-      const query = customMethods[data.collection][n](
-        db[data.collection],
-        value.id || value._id || value // eslint-disable-line
-      );
-      if (data.live === true && query.$.subscribe) {
-        listeners[data.id] = query.$.subscribe((value: any) => {
-          send({
-            id: data.id,
-            type: data.type,
-            value: Array.isArray(value)
-              ? value.map(x => x.toJSON())
-              : value.toJSON()
-          });
-        });
-      } else if (query.exec) {
-        return query
-          .exec()
+    } else if ((customMethods[data.collection] && customMethods[data.collection][data.type]) || ['find', 'findOne'].indexOf(data.type) !== -1) {
+      const {
+        id,
+        _id,
+        sort,
+        ...rest
+      }: { id: any; _id: any; sort?: string;[x: string]: any } =
+        data.value || {};
+      const isCustom = (customMethods[data.collection] && customMethods[data.collection][data.type]);
+
+      if (isCustom) {
+        const query = customMethods[data.collection][data.type](db[data.collection], id || _id || rest);
+        return Promise.resolve(query)
           .then((value: any) =>
             send({
               id: data.id,
               type: data.type,
-              value: Array.isArray(value)
-                ? value.map(x => x.toJSON())
-                : value.toJSON()
+              value
             })
           )
           .catch((error: Error) =>
@@ -163,25 +146,10 @@ export const inner = (
               error: error.message
             })
           );
-      } else {
-        const result = await query;
-        send({
-          id: data.id,
-          type: data.type,
-          value: result
-        });
       }
-    } else if (['find', 'findOne'].indexOf(data.type) !== -1) {
-      const {
-        id,
-        _id,
-        sort,
-        ...rest
-      }: { id: any; _id: any; sort?: string;[x: string]: any } =
-        data.value || {};
-      const query = db[data.collection][data.type](id || _id || rest);
+      let query = db[data.collection][data.type](id || _id || rest);
       if (sort) {
-        query.sort(sort);
+        query = query.sort(sort);
       }
       if (data.live === true) {
         listeners[data.id] = query.$.subscribe((value: any) => {

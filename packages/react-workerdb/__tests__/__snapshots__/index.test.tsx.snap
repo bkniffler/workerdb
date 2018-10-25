@@ -8,6 +8,12 @@ exports[`index should work 1`] = `
   <span>
     Oscar
   </span>
+  <span>
+    Oscar1
+  </span>
+  <span>
+    Oscar2
+  </span>
   Filou
 </div>
 `;

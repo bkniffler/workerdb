@@ -30,7 +30,7 @@ describe('index', () => {
       postMessage: (data: any) => {
         listener(data);
       },
-      terminate: () => {}
+      terminate: () => { }
     };
     const component = renderer.create(
       <WorkerDB
@@ -82,7 +82,9 @@ const getWorker = (cb: (data: any) => void): Function => {
           type: 'object',
           version: 0,
           properties: {
-            name: { type: 'string' }
+            name: {
+              type: 'string', index: true
+            }
           }
         },
         methods: {
@@ -101,7 +103,9 @@ const getWorker = (cb: (data: any) => void): Function => {
     },
     async (db: any) => {
       await db.bird.insert({ name: 'Oscar' });
+      await db.bird.insert({ name: 'Oscar1' });
       await db.bird.insert({ name: 'Filou' });
+      await db.bird.insert({ name: 'Oscar2' });
     }
   );
 };

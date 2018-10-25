@@ -10,6 +10,10 @@ describe('index', () => {
       terminate: () => (terminated = true)
     };
     const db = await WorkerDB.create(worker);
+    await db.c('birdie').insert({ name: 'Oscar' });
+    await db.c('birdie').insert({ name: 'Oscar2' });
+    await db.c('birdie').insert({ name: 'Filou' });
+    await db.c('birdie').insert({ name: 'Oscar' });
     await db.c('birdie').find();
     db.close();
     expect(terminated).toBe(true);
