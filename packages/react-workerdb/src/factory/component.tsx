@@ -41,9 +41,15 @@ class WorkerDBFactoryComponent<T> extends React.Component<
       transform,
       live,
       method,
+      onReady,
+      onError,
       ...rest
     } = props;
     if (!collection) {
+      this.removeListener();
+      if (this.state.value) {
+        this.setState({ value: null });
+      }
       return;
     } else if (this.prevProps && equal(this.prevProps, rest)) {
       return;
