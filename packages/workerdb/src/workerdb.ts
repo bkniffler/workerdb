@@ -19,10 +19,10 @@ export interface WorkerDBOptions {
   onSyncing?: WorkerDBSyncing;
 }
 
-export interface WorkerDBCollection {
-  findOne: (value?: any) => any;
-  find: (value?: any) => any;
-  insert: (value: any) => any;
+export interface WorkerDBCollection<T = any> {
+  findOne: (value?: any) => T;
+  find: (value?: any) => [T];
+  insert: (value: T) => T;
 }
 
 export interface WorkerDBCallback {
