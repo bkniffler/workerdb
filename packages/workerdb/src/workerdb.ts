@@ -127,7 +127,7 @@ class WorkerDB {
     return this;
   };
 
-  reset = async (value: any): Promise<WorkerDB> => {
+  reset = async (): Promise<WorkerDB> => {
     await this.query('', 'reset', {});
     return this;
   };
