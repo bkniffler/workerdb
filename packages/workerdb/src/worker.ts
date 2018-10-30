@@ -105,7 +105,19 @@ export const inner = (
       throw new Error('Not initialized');
     }
     if (data.type === 'close') {
-      return db.destroy();
+      return db.destroy().then(() => {
+        send({
+          id: data.id,
+          type: data.type
+        });
+      });
+    } else if (data.type === 'reset') {
+      return db.remove().then(() => {
+        send({
+          id: data.id,
+          type: data.type
+        });
+      });
     } else if (data.type === 'stop') {
       listeners[data.id].unsubscribe();
       delete listeners[data.id];
@@ -119,18 +131,27 @@ export const inner = (
           });
         }
       );
-    } else if ((customMethods[data.collection] && customMethods[data.collection][data.type]) || ['find', 'findOne'].indexOf(data.type) !== -1) {
+    } else if (
+      (customMethods[data.collection] &&
+        customMethods[data.collection][data.type]) ||
+      ['find', 'findOne'].indexOf(data.type) !== -1
+    ) {
       const {
         id,
         _id,
         sort,
         ...rest
-      }: { id: any; _id: any; sort?: string;[x: string]: any } =
+      }: { id: any; _id: any; sort?: string; [x: string]: any } =
         data.value || {};
-      const isCustom = (customMethods[data.collection] && customMethods[data.collection][data.type]);
+      const isCustom =
+        customMethods[data.collection] &&
+        customMethods[data.collection][data.type];
 
       if (isCustom) {
-        const query = customMethods[data.collection][data.type](db[data.collection], id || _id || rest);
+        const query = customMethods[data.collection][data.type](
+          db[data.collection],
+          id || _id || rest
+        );
         return Promise.resolve(query)
           .then((value: any) =>
             send({
@@ -161,6 +182,7 @@ export const inner = (
               : value.toJSON()
           });
         });
+        return;
       }
       return query
         .exec()
@@ -204,7 +226,7 @@ export const inner = (
         );
     } else if (['insert', 'upsert'].indexOf(data.type) !== -1) {
       return db[data.collection]
-      [data.type](data.value)
+        [data.type](data.value)
         .then((value: any) =>
           send({
             id: data.id,

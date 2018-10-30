@@ -1,12 +1,11 @@
 {
-  "autorun.build": true,
-  "eslint.enable": false,
   "files.exclude": {
     "**/.git": true,
     "**/.svn": true,
     "**/.hg": true,
     "**/CVS": true,
     "**/.DS_Store": true,
-    "**/lib": true
+    "**/lib": true,
+    "**/es": true
   }
 }

@@ -127,6 +127,11 @@ class WorkerDB {
     return this;
   };
 
+  reset = async (value: any): Promise<WorkerDB> => {
+    await this.query('', 'reset', {});
+    return this;
+  };
+
   // Send message to webworker
   send = (data: any) => {
     this.worker.postMessage(data);

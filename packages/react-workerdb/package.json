@@ -2,7 +2,9 @@
   "name": "react-workerdb",
   "version": "0.0.16",
   "license": "MIT",
-  "main": "lib/index.js",
+  "main": "lib",
+  "esnext": "es",
+  "module": "es",
   "types": "lib/index.d.js",
   "keywords": [
     "react",
@@ -32,8 +34,11 @@
     "url": "https://github.com/bkniffler/workerdb.git"
   },
   "scripts": {
-    "dev": "tsc -w",
-    "build": "tsc",
+    "clean": "rimraf lib es",
+    "build": "yarn clean && run-p ts:*",
+    "ts:es": "tsc --module esnext --outDir es",
+    "ts:lib": "yarn tsc",
+    "dev": "run-p \"ts:* -- --watch\"",
     "test": "jest"
   },
   "devDependencies": {
