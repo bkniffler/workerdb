@@ -86,6 +86,44 @@ worker([
 ]);
 ```
 
+### React (Hooks)
+
+```jsx
+import * as React from 'react';
+import { WorkerDB, useInsert, useFind } from 'react-workerdb';
+
+const worker = new Worker('./worker.js');
+export default () => (
+  <WorkerDB worker={worker} loading={() => 'Is loading ...'}>
+    <Birds />
+  </WorkerDB>
+);
+
+function Birds() {
+  // Search
+  const [searchText, changeSearchText] = React.useState('');
+
+  // WorkerDB insert
+  const insert = useInsert('bird');
+  // WorkerDB find (this query is reactive/live by default)
+  const [birds, error, loading] = useFind('bird', {
+    // Re-querying will automatically happen if these options change
+    title: searchText ? { $regex: new RegExp(value, 'i') } : undefined
+  });
+
+  return (
+    <div>
+      <input
+        value={searchText}
+        onChange={e => changeSearchText(e.target.value)}
+      />
+      <button onClick={() => insert({ name: 'Filou' })}>Add Bird</button>
+      <span>There is {birds.length} birds</span>
+    </div>
+  );
+}
+```
+
 ### React
 
 You need to wrap your app with the `WorkerDB` provider. You may then use `Find`, `FindOne` and `Database` components.
