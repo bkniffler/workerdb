@@ -10,7 +10,7 @@ interface IUseFindOne<T> {
 }
 
 function useFindOne<T = any>(
-  name: string,
+  type: string,
   args?: any
 ): [T, Error | null, boolean] {
   const [{ value, error, loading }, setValue]: [
@@ -26,7 +26,8 @@ function useFindOne<T = any>(
     setValue({ value, error: null, loading: false });
   }
 
-  React['useEffect'](() => context.query(name, 'find', args, useFindChange), [
+  React['useEffect'](() => context.query(type, 'find', args, useFindChange), [
+    type,
     stringify(args)
   ]);
 
