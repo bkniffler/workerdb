@@ -51,9 +51,13 @@ describe('index', () => {
       value: { name: 'Filou1' },
       collection: 'bird'
     });
-    await listener({ type: 'find', collection: 'bird', value: { sort: 'name' } });
+    await listener({
+      type: 'find',
+      collection: 'bird',
+      value: { sort: 'name' }
+    });
     await listener({ type: 'close' });
-    expect(invocations).toBe(6);
+    expect(invocations).toBe(7);
     expect(results[0]).toEqual([]);
     expect(results[1]).toBeTruthy();
     expect(results[1].name).toBe('Filou');
@@ -105,7 +109,7 @@ describe('index', () => {
       collection: 'bird'
     });
     await listener({ type: 'close' });
-    expect(invocations).toBe(1);
+    expect(invocations).toBe(2);
   });
   it('should be able to throw if method not found', async () => {
     let invocations = 0;

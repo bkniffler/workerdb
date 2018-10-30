@@ -182,7 +182,7 @@ export const inner = (
               : value.toJSON()
           });
         });
-        return;
+        return query.exec();
       }
       return query
         .exec()
