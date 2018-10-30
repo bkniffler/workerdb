@@ -9,27 +9,34 @@ interface IUseFindOne<T> {
   loading: boolean;
 }
 
-function useFindOne<T = any>(
+function useFindOne<T = any, T2 = T>(
   type: string,
-  args?: any
-): [T, Error | null, boolean] {
+  args?: any,
+  transformer?: (value: T) => T2
+): [T2, Error | null, boolean] {
   const [{ value, error, loading }, setValue]: [
-    IUseFindOne<T>,
-    (newValue: IUseFindOne<T>) => void
+    IUseFindOne<T2>,
+    (newValue: IUseFindOne<T2>) => void
   ] = React['useState']({ value: null, error: undefined, loading: true });
   const context = React['useContext'](Context) as WorkerDB;
 
-  function useFindChange(error: Error | null, value: T) {
+  function useFindChange(error: Error | null, value: any) {
     if (error) {
       setValue({ error, loading: false, value });
     }
-    setValue({ value, error: null, loading: false });
+    if (transformer) {
+      setValue({ value: transformer(value), error: null, loading: false });
+    } else {
+      setValue({ value, error: null, loading: false });
+    }
   }
 
-  React['useEffect'](() => context.query(type, 'find', args, useFindChange), [
-    type,
-    stringify(args)
-  ]);
+  if (context) {
+    React['useEffect'](
+      () => context.query(type, 'findOne', args, useFindChange),
+      [type, stringify(args)]
+    );
+  }
 
   return [value, error, loading];
 }

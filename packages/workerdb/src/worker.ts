@@ -142,7 +142,7 @@ export const inner = (
         sort,
         ...rest
       }: { id: any; _id: any; sort?: string; [x: string]: any } =
-        data.value || {};
+        typeof data.value === 'string' ? { id: data.value } : data.value;
       const isCustom =
         customMethods[data.collection] &&
         customMethods[data.collection][data.type];

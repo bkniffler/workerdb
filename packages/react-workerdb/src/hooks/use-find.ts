@@ -9,27 +9,34 @@ interface IUseFind<T> {
   loading: boolean;
 }
 
-function useFind<T = any>(
+function useFind<T = any, T2 = T>(
   type: string,
-  args?: any
-): [Array<T>, Error | null, boolean] {
+  args?: any,
+  transformer?: (value: Array<T>) => Array<T2>
+): [Array<T2>, Error | null, boolean] {
   const [{ value, error, loading }, setValue]: [
-    IUseFind<T>,
-    (newValue: IUseFind<T>) => void
+    IUseFind<T2>,
+    (newValue: IUseFind<T2>) => void
   ] = React['useState']({ value: [], error: null, loading: true });
   const context = React['useContext'](Context) as WorkerDB;
 
-  function useFindChange(error: Error | null, value: Array<T>) {
+  function useFindChange(error: Error | null, value: any) {
     if (error) {
       setValue({ error, loading: false, value });
     }
-    setValue({ value, error: null, loading: false });
+    if (transformer) {
+      setValue({ value: transformer(value), error: null, loading: false });
+    } else {
+      setValue({ value, error: null, loading: false });
+    }
   }
 
-  React['useEffect'](() => context.query(type, 'find', args, useFindChange), [
-    type,
-    stringify(args)
-  ]);
+  if (context) {
+    React['useEffect'](() => context.query(type, 'find', args, useFindChange), [
+      type,
+      stringify(args)
+    ]);
+  }
 
   return [value, error, loading];
 }
