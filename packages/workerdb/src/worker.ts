@@ -1,9 +1,12 @@
 import { combineLatest } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
-import RxDB, { RxCollectionCreator, RxDatabase, RxDatabaseCreator } from 'rxdb';
+import RxDB, { RxCollectionCreator, RxDatabase, RxDatabaseCreator, PouchDB } from 'rxdb';
 
 declare const self: Worker;
 
+interface RxDatabaseCreatorWithAuth extends RxDatabaseCreator {
+  authorization?: string;
+}
 interface RxCollectionCreatorWithSync extends RxCollectionCreator {
   sync?: any;
   methods?: any;
@@ -23,7 +26,7 @@ RxDB.plugin(require('pouchdb-adapter-idb'));
 
 export default (
   collections: Array<RxCollectionCreatorWithSync>,
-  webworker = self
+  webworker = self,
 ) => {
   const listener = inner(collections, webworker.postMessage);
   webworker.onmessage = event => {
@@ -36,14 +39,14 @@ export const inner = (
   collections: Array<RxCollectionCreatorWithSync>,
   send: WorkerSender,
   addPlugins?: Function,
-  init?: Function
+  init?: Function,
 ) => {
   let _db: Promise<RxDatabase>;
   let replicationStates: any;
   const listeners = {};
   const rx = addPlugins ? addPlugins(RxDB) : RxDB;
   const customMethods = {};
-  const createDB = async (data: RxDatabaseCreator) => {
+  const createDB = async (data: RxDatabaseCreatorWithAuth) => {
     if (_db) {
       const db = await _db;
       await db.destroy();
@@ -52,7 +55,7 @@ export const inner = (
       name: data.name || 'db',
       adapter: data.adapter || 'idb',
       multiInstance: false,
-      queryChangeDetection: true
+      queryChangeDetection: true,
     });
     const db = await _db;
     replicationStates = {};
@@ -61,6 +64,11 @@ export const inner = (
         db.collection(col).then(c => {
           customMethods[c.name] = col.methods;
           if (col.sync) {
+            if (col.sync.remote) {
+              col.sync.remote = new PouchDB(col.sync.remote, {
+                headers: { Authorization: data.authorization },
+              } as any);
+            }
             replicationStates[c.name] = c.sync(col.sync);
           }
           return c;
@@ -141,8 +149,8 @@ export const inner = (
         _id,
         sort,
         ...rest
-      }: { id: any; _id: any; sort?: string; [x: string]: any } =
-        typeof data.value === 'string' ? { id: data.value } : data.value;
+      }: { id: any; _id: any; sort?: string;[x: string]: any } =
+        (typeof data.value === 'string' ? { id: data.value } : data.value) || {};
       const isCustom =
         customMethods[data.collection] &&
         customMethods[data.collection][data.type];
@@ -226,7 +234,7 @@ export const inner = (
         );
     } else if (['insert', 'upsert'].indexOf(data.type) !== -1) {
       return db[data.collection]
-        [data.type](data.value)
+      [data.type](data.value)
         .then((value: any) =>
           send({
             id: data.id,

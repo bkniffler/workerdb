@@ -17,6 +17,7 @@ export interface WorkerDBOptions {
   adapter?: string;
   onError?: WorkerDBError;
   onSyncing?: WorkerDBSyncing;
+  authorization?: string;
 }
 
 export interface WorkerDBCollection<T = any> {
@@ -38,11 +39,11 @@ class WorkerDB {
     worker: WorkerDBWorker,
     options: WorkerDBOptions = {}
   ): Promise<WorkerDB> => {
-    const { name, adapter, onError, onSyncing } = options;
+    const { name, adapter, onError, onSyncing, authorization } = options;
     const db = new WorkerDB(worker);
     db.onError = onError;
     db.onSyncing = onSyncing;
-    return db.init({ name, adapter });
+    return db.init({ name, adapter, authorization });
   };
 
   constructor(worker: WorkerDBWorker) {
