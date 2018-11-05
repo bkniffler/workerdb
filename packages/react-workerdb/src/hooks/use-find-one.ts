@@ -31,12 +31,12 @@ function useFindOne<T = any, T2 = T>(
     }
   }
 
-  if (context) {
-    React['useEffect'](
-      () => context.query(type, 'findOne', args, useFindChange),
-      [type, stringify(args)]
-    );
-  }
+  React['useEffect'](
+    context && context.query
+      ? () => context.query(type, 'findOne', args, useFindChange)
+      : () => null,
+    [type, stringify(args)]
+  );
 
   return [value, error, loading];
 }

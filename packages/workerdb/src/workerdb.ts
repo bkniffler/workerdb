@@ -1,4 +1,5 @@
 export interface WorkerDBWorker {
+  onerror: ((this: any, ev: any) => any) | null;
   onmessage: ((this: any, ev: any) => any) | null;
   postMessage: (data: any) => void;
   terminate: Function;
@@ -49,11 +50,13 @@ class WorkerDB {
   constructor(worker: WorkerDBWorker) {
     this.worker = worker;
     this.worker.onmessage = this.onMessage;
+    this.worker.onerror = this.onErr;
   }
 
   listeners = {};
 
   id = 0;
+  terminateIn5: Number;
 
   // Send a query to database, either callbase (watch) or promise (once)
   query = (
@@ -93,6 +96,7 @@ class WorkerDB {
           type: 'stop'
         });
     }
+
     return new Promise((yay, nay) => {
       this.listeners[id] = listener((err, val) => (err ? nay(err) : yay(val)));
       send();
@@ -110,6 +114,11 @@ class WorkerDB {
     } else if (data.type === 'error' && this.onError) {
       this.onError(data.value);
     }
+  };
+
+  // Listen to messages from webworker
+  onErr = (event: any) => {
+    this.onErr(event);
   };
 
   c = (name: string): WorkerDBCollection => this.collection(name);
@@ -140,7 +149,8 @@ class WorkerDB {
 
   // Close Database
   close = () => {
-    this.worker.terminate();
+    // Delay termination to allow cancelation while hot reloading
+    this.terminateIn5 = setTimeout(this.worker.terminate, 100);
   };
 }
 

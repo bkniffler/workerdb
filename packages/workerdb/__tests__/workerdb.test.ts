@@ -5,6 +5,7 @@ describe('index', () => {
   it('should be able to be included', async () => {
     let terminated = false;
     const worker = {
+      onerror: null,
       onmessage: null,
       postMessage: (data: any) => worker['onme' + 'ssage']({ data }),
       terminate: () => (terminated = true)

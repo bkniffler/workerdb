@@ -27,14 +27,15 @@ describe('index', () => {
     const worker = {
       // postMessage: (data: any) => worker['onme' + 'ssage']({ data }),
       onmessage: (data: any) => data,
+      onerror: (err: any) => err,
       postMessage: (data: any) => {
         listener(data);
       },
-      terminate: () => { }
+      terminate: () => {}
     };
     const component = renderer.create(
       <WorkerDB
-        worker={worker}
+        worker={() => worker}
         onReady={() => (ready = true)}
         onError={(err: Error) => (error = err)}
         adapter="memory"
@@ -83,7 +84,8 @@ const getWorker = (cb: (data: any) => void): Function => {
           version: 0,
           properties: {
             name: {
-              type: 'string', index: true
+              type: 'string',
+              index: true
             }
           }
         },

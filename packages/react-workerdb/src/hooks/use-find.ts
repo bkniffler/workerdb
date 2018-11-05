@@ -31,12 +31,12 @@ function useFind<T = any, T2 = T>(
     }
   }
 
-  if (context) {
-    React['useEffect'](() => context.query(type, 'find', args, useFindChange), [
-      type,
-      stringify(args)
-    ]);
-  }
+  React['useEffect'](
+    context && context.query
+      ? () => context.query(type, 'find', args, useFindChange)
+      : () => null,
+    [type, stringify(args)]
+  );
 
   return [value, error, loading];
 }

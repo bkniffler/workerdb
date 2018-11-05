@@ -9,7 +9,7 @@ interface WorkerDBCreateWorker {
 }
 
 interface ReactWorkerDBProps extends RenderProps<WorkerDB> {
-  worker: WorkerDBCreateWorker | WorkerDBWorker;
+  worker: WorkerDBCreateWorker;
   name?: string;
   adapter?: string;
   authorization?: string;
@@ -23,45 +23,66 @@ export default class ReactWorkerDB extends React.Component<ReactWorkerDBProps> {
     syncing: boolean;
     error: Error | null;
   } = {
-      db: null,
-      syncing: false,
-      error: null
-    };
+    db: null,
+    syncing: false,
+    error: null
+  };
   db: WorkerDB;
+  key: Number;
 
-  async componentDidMount(props = this.props) {
-    const { onReady, onError, worker, name = 'db', adapter, authorization } = props;
+  init = async (props: ReactWorkerDBProps, reInit = false) => {
+    const { onReady, worker, name = 'db', adapter, authorization } = props;
 
-    const db = await WorkerDB.create(
-      typeof worker === 'function' ? worker() : worker,
-      {
-        name,
-        adapter,
-        authorization,
-        onSyncing: (syncing: boolean) => this.setState({ syncing }),
-        onError: (error: Error) => {
-          if (onError) {
-            onError(error);
-          }
-          this.setState({ error });
-        }
+    if (worker['db'] && !reInit) {
+      if (worker['db'].terminateIn5) {
+        clearTimeout(worker['db'].terminateIn5);
       }
-    );
+      const db = worker['db'];
+      db.onError = this.onSyncing;
+      db.onSyncing = this.onError;
+      this.setState({ db });
+    } else {
+      const db = await WorkerDB.create(
+        typeof worker === 'function' ? worker() : worker,
+        {
+          name,
+          adapter,
+          authorization,
+          onSyncing: this.onSyncing,
+          onError: this.onError
+        }
+      );
+      worker['db'] = db;
 
-    this.setState({ db });
-    if (onReady) {
-      onReady(db);
+      this.setState({ db });
+      if (onReady) {
+        onReady(db);
+      }
     }
+  };
+
+  async componentDidMount() {
+    this.init(this.props);
   }
+
+  onSyncing = (syncing: boolean) => this.setState({ syncing });
+  onError = (error: Error) => {
+    if (this.props.onError) {
+      this.props.onError(error);
+    }
+    this.setState({ error });
+  };
 
   componentWillReceiveProps(newProps: ReactWorkerDBProps) {
     if (newProps.authorization !== this.props.authorization) {
-      this.componentDidMount(newProps);
+      this.init(newProps, true);
     }
   }
 
   componentWillUnmount() {
-    this.state.db.close();
+    if (this.state.db) {
+      this.state.db.close();
+    }
   }
 
   render() {

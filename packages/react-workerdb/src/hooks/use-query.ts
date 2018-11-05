@@ -32,13 +32,12 @@ function useQuery<T = any, T2 = T>(
     }
   }
 
-  if (context) {
-    React['useEffect'](() => context.query(type, method, args, useFindChange), [
-      type,
-      method,
-      stringify(args)
-    ]);
-  }
+  React['useEffect'](
+    context && context.query
+      ? () => context.query(type, method, args, useFindChange)
+      : () => null,
+    [type, method, stringify(args)]
+  );
 
   return [value, error, loading];
 }
