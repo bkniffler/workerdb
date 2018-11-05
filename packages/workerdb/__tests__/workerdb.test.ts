@@ -16,7 +16,7 @@ describe('index', () => {
     await db.c('birdie').insert({ name: 'Filou' });
     await db.c('birdie').insert({ name: 'Oscar' });
     await db.c('birdie').find();
-    db.close();
+    await db.close();
     expect(terminated).toBe(true);
   });
 });

@@ -147,10 +147,22 @@ class WorkerDB {
     this.worker.postMessage(data);
   };
 
+  cancelTermination = false;
+  terminated = false;
   // Close Database
   close = () => {
+    this.cancelTermination = false;
     // Delay termination to allow cancelation while hot reloading
-    this.terminateIn5 = setTimeout(this.worker.terminate, 100);
+    return new Promise((yay, nay) => {
+      setTimeout(() => {
+        if (!this.cancelTermination) {
+          this.worker.terminate();
+          this.terminated = true;
+          this.cancelTermination = false;
+        }
+        yay(this);
+      }, 100);
+    });
   };
 }
 

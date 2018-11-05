@@ -33,10 +33,8 @@ export default class ReactWorkerDB extends React.Component<ReactWorkerDBProps> {
   init = async (props: ReactWorkerDBProps, reInit = false) => {
     const { onReady, worker, name = 'db', adapter, authorization } = props;
 
-    if (worker['db'] && !reInit) {
-      if (worker['db'].terminateIn5) {
-        clearTimeout(worker['db'].terminateIn5);
-      }
+    if (worker['db'] && !reInit && !worker['db'].terminated) {
+      worker['db'].cancelTermination = true;
       const db = worker['db'];
       db.onError = this.onSyncing;
       db.onSyncing = this.onError;
