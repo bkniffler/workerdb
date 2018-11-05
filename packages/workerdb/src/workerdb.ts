@@ -153,7 +153,7 @@ class WorkerDB {
   close = () => {
     this.cancelTermination = false;
     // Delay termination to allow cancelation while hot reloading
-    return new Promise((yay, nay) => {
+    return new Promise(yay => {
       setTimeout(() => {
         if (!this.cancelTermination) {
           this.worker.terminate();
