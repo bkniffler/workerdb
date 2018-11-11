@@ -1,6 +1,7 @@
 {
   "name": "workerdb",
   "version": "0.2.3",
+  "sideEffects": false,
   "license": "MIT",
   "main": "lib",
   "esnext": "es",
