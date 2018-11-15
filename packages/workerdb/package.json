@@ -46,7 +46,7 @@
     "pouchdb-adapter-idb": "^7.0.0",
     "pouchdb-adapter-memory": "^7.0.0",
     "pouchdb-core": "^7.0.0",
-    "rxdb": "^8.0.3",
+    "rxdb": "^8.0.4",
     "rxjs": "^6.3.3"
   },
   "devDependencies": {

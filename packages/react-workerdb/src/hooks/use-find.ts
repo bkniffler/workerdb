@@ -17,8 +17,8 @@ function useFind<T = any, T2 = T>(
   const [{ value, error, loading }, setValue]: [
     IUseFind<T2>,
     (newValue: IUseFind<T2>) => void
-  ] = React['useState']({ value: [], error: null, loading: true });
-  const context = React['useContext'](Context) as WorkerDB;
+  ] = React.useState({ value: [], error: null, loading: true });
+  const context = React.useContext(Context) as WorkerDB;
 
   function useFindChange(error: Error | null, value: any) {
     if (error) {
@@ -31,7 +31,7 @@ function useFind<T = any, T2 = T>(
     }
   }
 
-  React['useEffect'](
+  React.useEffect(
     context && context.query
       ? () => context.query(type, 'find', args, useFindChange)
       : () => null,
