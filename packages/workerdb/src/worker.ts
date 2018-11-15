@@ -135,8 +135,16 @@ export const inner = (
         });
       });
     } else if (data.type === 'stop') {
-      listeners[data.id].unsubscribe();
-      delete listeners[data.id];
+      if (listeners[data.id]) {
+        listeners[data.id].unsubscribe();
+        delete listeners[data.id];
+      } else {
+        console.warn(
+          'Trying to unsubscribe from listener',
+          data.id,
+          'but none listening'
+        );
+      }
     } else if (['active'].indexOf(data.type) !== -1) {
       listeners[data.id] = replicationStates[data.collection].subscribe(
         (value: boolean) => {

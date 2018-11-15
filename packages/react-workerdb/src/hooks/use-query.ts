@@ -8,17 +8,22 @@ interface IUseQuery<T> {
   error: Error | null;
   loading: boolean;
 }
+interface IUseQueryOptions<T = any, T2 = any> {
+  disabled?: boolean;
+  transformer?: (value: T) => T2;
+  args?: any;
+}
 
 function useQuery<T = any, T2 = T>(
   type: string,
   method: string,
-  args?: any,
-  transformer?: (value: T) => T2
+  options: IUseQueryOptions = {}
 ): [T2, Error | null, boolean] {
   const [{ value, error, loading }, setValue]: [
     IUseQuery<T2>,
     (newValue: IUseQuery<T2>) => void
   ] = React['useState']({ value: undefined, error: undefined, loading: true });
+  const { disabled = false, transformer, args } = options;
   const context = React['useContext'](Context) as WorkerDB;
 
   function useFindChange(error: Error | null, value: any) {
@@ -33,13 +38,15 @@ function useQuery<T = any, T2 = T>(
   }
 
   React['useEffect'](
-    context && context.query
+    context && context.query && !disabled
       ? () => context.query(type, method, args, useFindChange)
       : () => null,
     [type, method, stringify(args)]
   );
 
-  return [value, error, loading];
+  return disabled
+    ? ([undefined, undefined, false] as any)
+    : [value, error, loading];
 }
 
 export default useQuery;
