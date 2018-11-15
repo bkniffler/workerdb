@@ -22,7 +22,11 @@ function useQuery<T = any, T2 = T>(
   const [{ value, error, loading }, setValue]: [
     IUseQuery<T2>,
     (newValue: IUseQuery<T2>) => void
-  ] = React.useState({ value: undefined, error: undefined, loading: true });
+  ] = React.useState({
+    value: undefined,
+    error: undefined,
+    loading: true
+  } as any);
   const { disabled = false, transformer, args } = options;
   const context = React.useContext(Context) as WorkerDB;
 
@@ -37,10 +41,9 @@ function useQuery<T = any, T2 = T>(
     }
   }
 
+  const skip = !context || !context.query || disabled;
   React.useEffect(
-    context && context.query && !disabled
-      ? () => context.query(type, method, args, useFindChange)
-      : () => null,
+    skip ? () => {} : () => context.query(type, method, args, useFindChange),
     [type, method, stringify(args)]
   );
 

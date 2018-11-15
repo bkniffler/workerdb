@@ -17,7 +17,7 @@ function useFindOne<T = any, T2 = T>(
   const [{ value, error, loading }, setValue]: [
     IUseFindOne<T2>,
     (newValue: IUseFindOne<T2>) => void
-  ] = React.useState({ value: null, error: undefined, loading: true });
+  ] = React.useState({ value: null, error: undefined, loading: true } as any);
   const context = React.useContext(Context) as WorkerDB;
 
   function useFindChange(error: Error | null, value: any) {
@@ -34,7 +34,7 @@ function useFindOne<T = any, T2 = T>(
   React.useEffect(
     context && context.query
       ? () => context.query(type, 'findOne', args, useFindChange)
-      : () => null,
+      : () => {},
     [type, stringify(args)]
   );
 
