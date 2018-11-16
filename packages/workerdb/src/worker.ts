@@ -249,7 +249,26 @@ export const inner = (
             error: error.message
           })
         );
-    } else if (['insert', 'upsert'].indexOf(data.type) !== -1) {
+    } else if (['insert', 'upsert', 'update'].indexOf(data.type) !== -1) {
+      if (data.value && data.value._id) {
+        return db[data.collection]
+          .findOne(data.value._id)
+          .update({ $set: data.value })
+          .then((value: any) =>
+            send({
+              id: data.id,
+              type: data.type,
+              value: value.toJSON()
+            })
+          )
+          .catch((error: Error) =>
+            send({
+              id: data.id,
+              type: data.type,
+              error: error.message
+            })
+          );
+      }
       return db[data.collection]
         [data.type](data.value)
         .then((value: any) =>

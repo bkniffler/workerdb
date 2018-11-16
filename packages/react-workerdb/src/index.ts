@@ -2,7 +2,6 @@
 export { default as WorkerDB } from './workerdb';
 export { default as Database } from './database';
 export { default as Collection } from './collection';
-export { default as useCollection } from './use-collection';
 export * from './hooks';
 
 // React Sync

@@ -24,7 +24,9 @@ export interface WorkerDBOptions {
 export interface WorkerDBCollection<T = any> {
   findOne: (value?: any) => T;
   find: (value?: any) => [T];
-  insert: (value: T) => T;
+  remove: (id: string) => void;
+  insert: (value: T) => Promise<T>;
+  upsert: (value: T) => Promise<T>;
 }
 
 export interface WorkerDBCallback {
