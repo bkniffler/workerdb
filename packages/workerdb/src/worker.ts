@@ -73,9 +73,9 @@ export const inner = (
           customMethods[c.name] = col.methods;
           if (col.sync) {
             if (col.sync.remote) {
-              col.sync.remote = new PouchDB(col.sync.remote, {
+              col.sync.remote = new PouchDB(col.sync.remote, data.authorization ? {
                 headers: { Authorization: data.authorization }
-              } as any);
+              } : {} as any);
             }
             replicationStates[c.name] = c.sync(col.sync);
           }
