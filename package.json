@@ -41,6 +41,7 @@
     "clean": "rm -rf ./node_modules && rm -rf ./packages/*/node_modules && rm -rf ./packages/*/lib",
     "dev": "lerna run --parallel dev",
     "lp": "lerna publish --registry https://registry.npmjs.org",
+    "lpf": "lerna publish --registry https://registry.npmjs.org --force-publish",
     "test": "yarn build && jest",
     "coverage": "codecov"
   },
