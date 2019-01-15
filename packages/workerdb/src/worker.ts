@@ -9,22 +9,22 @@ import RxDB, {
 
 declare const self: Worker;
 
-interface RxDatabaseCreatorWithAuth extends RxDatabaseCreator {
+export interface RxDatabaseCreatorWithAuth extends RxDatabaseCreator {
   authorization?: string;
 }
-interface RxCollectionCreatorWithSync extends RxCollectionCreator {
+export interface RxCollectionCreatorWithSync extends RxCollectionCreator {
   sync?: any;
   methods?: any;
 }
 
-interface WorkerMessageBody {
+export interface WorkerMessageBody {
   id?: string;
   type: string;
   value?: any;
   error?: Error | string;
 }
 
-type WorkerSender = (body: WorkerMessageBody) => void;
+export type WorkerListener = (body: WorkerMessageBody) => void;
 
 RxDB.plugin(require('pouchdb-adapter-http'));
 RxDB.plugin(require('pouchdb-adapter-idb'));
@@ -43,16 +43,19 @@ export default (
   };
 };
 
+export interface IWorkerOptions {
+  plugins?: Function;
+  init?: Function;
+}
 export const inner = (
   collections: Array<RxCollectionCreatorWithSync>,
-  send: WorkerSender,
-  addPlugins?: Function,
-  init?: Function
+  listener: WorkerListener,
+  options: IWorkerOptions = {}
 ) => {
   let _db: Promise<RxDatabase>;
   let replicationStates: any;
   const listeners = {};
-  const rx = addPlugins ? addPlugins(RxDB) : RxDB;
+  const rx = options.plugins ? options.plugins(RxDB) : RxDB;
   const customMethods = {};
   const createDB = async (data: RxDatabaseCreatorWithAuth) => {
     if (_db) {
@@ -73,9 +76,14 @@ export const inner = (
           customMethods[c.name] = col.methods;
           if (col.sync) {
             if (col.sync.remote) {
-              col.sync.remote = new PouchDB(col.sync.remote, data.authorization ? {
-                headers: { Authorization: data.authorization }
-              } : {} as any);
+              col.sync.remote = new PouchDB(
+                col.sync.remote,
+                data.authorization
+                  ? {
+                      headers: { Authorization: data.authorization }
+                    }
+                  : ({} as any)
+              );
             }
             replicationStates[c.name] = c.sync(col.sync);
           }
@@ -93,7 +101,7 @@ export const inner = (
     )
       .pipe(distinctUntilChanged())
       .subscribe(value => {
-        send({
+        listener({
           type: 'syncing',
           value
         });
@@ -105,16 +113,21 @@ export const inner = (
     if (data.type === 'init') {
       try {
         const db = await createDB(data.value);
-        if (init) {
-          await init(db);
+        if (options.init) {
+          await options.init(db);
         }
-        send({
+        listener({
           id: data.id,
           type: 'ready'
         });
       } catch (error) {
-        send({ type: 'error', error });
+        listener({
+          id: data.id,
+          type: 'error',
+          error
+        });
       }
+      return;
     }
     const db = await _db;
     if (!db) {
@@ -122,14 +135,14 @@ export const inner = (
     }
     if (data.type === 'close') {
       return db.destroy().then(() => {
-        send({
+        listener({
           id: data.id,
           type: data.type
         });
       });
     } else if (data.type === 'reset') {
       return db.remove().then(() => {
-        send({
+        listener({
           id: data.id,
           type: data.type
         });
@@ -148,7 +161,7 @@ export const inner = (
     } else if (['active'].indexOf(data.type) !== -1) {
       listeners[data.id] = replicationStates[data.collection].subscribe(
         (value: boolean) => {
-          send({
+          listener({
             id: data.id,
             type: data.type,
             value
@@ -160,6 +173,13 @@ export const inner = (
         customMethods[data.collection][data.type]) ||
       ['find', 'findOne'].indexOf(data.type) !== -1
     ) {
+      if (!db[data.collection]) {
+        return listener({
+          id: data.id,
+          type: data.type,
+          error: new Error('Could not find collection ' + data.collection)
+        });
+      }
       const {
         id,
         _id,
@@ -179,14 +199,14 @@ export const inner = (
         );
         return Promise.resolve(query)
           .then((value: any) =>
-            send({
+            listener({
               id: data.id,
               type: data.type,
               value
             })
           )
           .catch((error: Error) =>
-            send({
+            listener({
               id: data.id,
               type: data.type,
               error: error.message
@@ -199,7 +219,7 @@ export const inner = (
       }
       if (data.live === true) {
         listeners[data.id] = query.$.subscribe((value: any) => {
-          send({
+          listener({
             id: data.id,
             type: data.type,
             value: Array.isArray(value)
@@ -212,7 +232,7 @@ export const inner = (
       return query
         .exec()
         .then((value: any) =>
-          send({
+          listener({
             id: data.id,
             type: data.type,
             value: Array.isArray(value)
@@ -221,20 +241,27 @@ export const inner = (
           })
         )
         .catch((error: Error) =>
-          send({
+          listener({
             id: data.id,
             type: data.type,
             error: error.message
           })
         );
     } else if (['remove'].indexOf(data.type) !== -1) {
+      if (!db[data.collection]) {
+        return listener({
+          id: data.id,
+          type: data.type,
+          error: new Error('Could not find collection ' + data.collection)
+        });
+      }
       const value = data.value || {};
       const query = db[data.collection].findOne(
         value.id || value._id || value // eslint-disable-line
       );
       return query[data.type]()
         .then((value: any) =>
-          send({
+          listener({
             id: data.id,
             type: data.type,
             value: Array.isArray(value)
@@ -243,26 +270,33 @@ export const inner = (
           })
         )
         .catch((error: Error) =>
-          send({
+          listener({
             id: data.id,
             type: data.type,
             error: error.message
           })
         );
     } else if (['insert', 'upsert', 'update'].indexOf(data.type) !== -1) {
+      if (!db[data.collection]) {
+        return listener({
+          id: data.id,
+          type: data.type,
+          error: new Error('Could not find collection ' + data.collection)
+        });
+      }
       if (data.value && data.value._id) {
         return db[data.collection]
           .findOne(data.value._id)
           .update({ $set: data.value })
           .then((value: any) =>
-            send({
+            listener({
               id: data.id,
               type: data.type,
               value: value.toJSON()
             })
           )
           .catch((error: Error) =>
-            send({
+            listener({
               id: data.id,
               type: data.type,
               error: error.message
@@ -272,14 +306,14 @@ export const inner = (
       return db[data.collection]
         [data.type](data.value)
         .then((value: any) =>
-          send({
+          listener({
             id: data.id,
             type: data.type,
             value: value.toJSON()
           })
         )
         .catch((error: Error) =>
-          send({
+          listener({
             id: data.id,
             type: data.type,
             error: error.message

@@ -3,7 +3,7 @@ import * as wait from 'wait-for-expect';
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import { Find, WorkerDB, Call } from '../src';
-import { inner } from '../../workerdb/src/worker';
+import mock from '../../workerdb/src/worker-mock';
 
 describe('index', () => {
   it('should be able to be included', () => {
@@ -20,19 +20,16 @@ describe('index', () => {
     const FindBird = Find.ofType<XType, Array<string>>();
     const CallBird = Call.ofType<XType, string>();
 
-    let listener: any;
-    listener = await getWorker(data => worker.onmessage({ data }));
-    let ready = true;
+    let ready: any = false;
     let error: any = null;
-    const worker = {
-      // postMessage: (data: any) => worker['onme' + 'ssage']({ data }),
-      onmessage: (data: any) => data,
-      onerror: (err: any) => err,
-      postMessage: (data: any) => {
-        listener(data);
-      },
-      terminate: () => {}
-    };
+    const worker = await mock(collections(), {
+      init: async (db: any) => {
+        await db.bird.insert({ name: 'Oscar' });
+        await db.bird.insert({ name: 'Oscar1' });
+        await db.bird.insert({ name: 'Filou' });
+        await db.bird.insert({ name: 'Oscar2' });
+      }
+    }).toWorker();
     const component = renderer.create(
       <WorkerDB
         worker={() => worker}
@@ -74,40 +71,25 @@ describe('index', () => {
   });
 });
 
-const getWorker = (cb: (data: any) => void): Function => {
-  return inner(
-    [
-      {
-        name: 'bird',
-        schema: {
-          type: 'object',
-          version: 0,
-          properties: {
-            name: {
-              type: 'string',
-              index: true
-            }
-          }
-        },
-        methods: {
-          custom: (col: any, value: any) =>
-            col
-              .findOne({ name: 'Filou' })
-              .exec()
-              .then((x: any) => x.name)
+const collections = () => [
+  {
+    name: 'bird',
+    schema: {
+      type: 'object',
+      version: 0,
+      properties: {
+        name: {
+          type: 'string',
+          index: true
         }
       }
-    ],
-    cb,
-    (rx: any) => {
-      rx.plugin(require('pouchdb-adapter-memory'));
-      return rx;
     },
-    async (db: any) => {
-      await db.bird.insert({ name: 'Oscar' });
-      await db.bird.insert({ name: 'Oscar1' });
-      await db.bird.insert({ name: 'Filou' });
-      await db.bird.insert({ name: 'Oscar2' });
+    methods: {
+      custom: (col: any, value: any) =>
+        col
+          .findOne({ name: 'Filou' })
+          .exec()
+          .then((x: any) => x.name)
     }
-  );
-};
+  }
+];

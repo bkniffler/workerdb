@@ -1,62 +1,49 @@
 import 'jest';
-import worker, { inner } from '../src/worker';
+import { workerMock } from '../src';
 
 describe('index', () => {
-  it('should be able to be included', () => {
-    worker([
-      {
-        name: 'bird',
-        schema: {
-          type: 'object',
-          version: 0,
-          properties: {
-            name: { type: 'string', index: true }
-          }
-        }
-      }
-    ]);
-  });
   it('should be able to start', async () => {
-    const listener = await getWorker();
-    await listener({ type: 'close' });
+    const worker = await workerMock(collections()).init();
+    await worker.close();
   });
   it('should be able to be query', async () => {
     let invocations = 0;
     let results: Array<any> = [];
-    const listener = await getWorker((data: any) => {
+    const worker = await workerMock(collections()).init();
+    worker.listen((data: any) => {
       invocations += 1;
       if (data.error) {
         throw data.error;
       }
       results.push(data.value);
     });
-    await listener({ type: 'find', collection: 'bird' });
-    await listener({
+    await worker.send({ type: 'find', collection: 'bird' });
+    await worker.send({
       type: 'insert',
       value: { name: 'Filou' },
       collection: 'bird'
     });
-    await listener({
+    await worker.send({
       type: 'insert',
       value: { name: 'Filou4' },
       collection: 'bird'
     });
-    await listener({
+    await worker.send({
       type: 'insert',
       value: { name: 'Filou3' },
       collection: 'bird'
     });
-    await listener({
+    await worker.send({
       type: 'insert',
       value: { name: 'Filou1' },
       collection: 'bird'
     });
-    await listener({
+    await worker.send({
       type: 'find',
       collection: 'bird',
       value: { sort: 'name' }
     });
-    await listener({ type: 'close' });
+    await worker.close();
     expect(invocations).toBe(7);
     expect(results[0]).toEqual([]);
     expect(results[1]).toBeTruthy();
@@ -77,49 +64,52 @@ describe('index', () => {
   it('should be able to live query', async () => {
     let invocations = 0;
     let results: Array<any> = [];
-    const listener = await getWorker((data: any) => {
+    const worker = await workerMock(collections()).init();
+    worker.listen((data: any) => {
       invocations += 1;
       results.push(data.value);
     });
-    await listener({ id: 1, type: 'find', live: true, collection: 'bird' });
-    await listener({
+    await worker.send({ id: 1, type: 'find', live: true, collection: 'bird' });
+    await worker.send({
       type: 'insert',
       value: { name: 'Filou' },
       collection: 'bird'
     });
-    await listener({ id: 1, type: 'stop', live: true, collection: 'bird' });
-    await listener({
+    await worker.send({ id: 1, type: 'stop', live: true, collection: 'bird' });
+    await worker.send({
       type: 'insert',
       value: { name: 'Filou' },
       collection: 'bird'
     });
-    await listener({ type: 'close' });
+    await worker.close();
     expect(invocations).toBe(4);
   });
   it('should be able to call custom', async () => {
     let invocations = 0;
     let results: Array<any> = [];
-    const listener = await getWorker((data: any) => {
+    const worker = await workerMock(collections()).init();
+    worker.listen((data: any) => {
       invocations += 1;
       results.push(data.value);
     });
-    await listener({
+    await worker.send({
       id: 1,
       type: 'custom',
       collection: 'bird'
     });
-    await listener({ type: 'close' });
+    await worker.close();
     expect(invocations).toBe(2);
   });
   it('should be able to throw if method not found', async () => {
     let invocations = 0;
     let results: Array<any> = [];
-    const listener = await getWorker((data: any) => {
+    const worker = await workerMock(collections()).init();
+    worker.listen((data: any) => {
       invocations += 1;
       results.push(data.value);
     });
     try {
-      await listener({
+      await worker.send({
         id: 1,
         type: 'custom2',
         live: true,
@@ -128,52 +118,22 @@ describe('index', () => {
     } catch (err) {
       expect(invocations).toBe(0);
     }
-    await listener({ type: 'close' });
+    await worker.close();
   });
 });
 
-const getWorker = (cb?: Function): Promise<Function> => {
-  let resolved = false;
-  return new Promise((yay, nay) => {
-    const listener = inner(
-      [
-        {
-          name: 'bird',
-          schema: {
-            type: 'object',
-            version: 0,
-            properties: {
-              name: { type: 'string', index: true }
-            }
-          },
-          methods: {
-            custom: (col: any, value: any) => col.find(value)
-          }
-        }
-      ],
-      data => {
-        if (data.type === 'ready') {
-          resolved = true;
-          yay(listener);
-        } else if (cb) {
-          cb(data);
-        }
-      },
-      (rx: any) => {
-        rx.plugin(require('pouchdb-adapter-memory'));
-        return rx;
+const collections = () => [
+  {
+    name: 'bird',
+    schema: {
+      type: 'object',
+      version: 0,
+      properties: {
+        name: { type: 'string', index: true }
       }
-    );
-    listener({
-      type: 'init',
-      value: {
-        adapter: 'memory'
-      }
-    });
-    setTimeout(() => {
-      if (!resolved) {
-        nay();
-      }
-    }, 1000);
-  });
-};
+    },
+    methods: {
+      custom: (col: any, value: any) => col.find(value)
+    }
+  }
+];

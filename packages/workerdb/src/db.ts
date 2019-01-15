@@ -5,6 +5,11 @@ export interface WorkerDBWorker {
   terminate: Function;
 }
 
+export interface WorkerDBMock {
+  send: (data: any) => void;
+  listen: ((data: any) => void);
+}
+
 export interface WorkerDBSyncing {
   (value: boolean): void;
 }
@@ -156,8 +161,11 @@ class WorkerDB {
     this.cancelTermination = false;
     // Delay termination to allow cancelation while hot reloading
     return new Promise(yay => {
-      setTimeout(() => {
+      setTimeout(async () => {
         if (!this.cancelTermination) {
+          try {
+            await this.query('', 'close', {});
+          } catch (e) {}
           this.worker.terminate();
           this.terminated = true;
           this.cancelTermination = false;
