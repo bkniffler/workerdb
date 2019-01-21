@@ -42,6 +42,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "events": "^3.0.0",
     "pouchdb-adapter-http": "^7.0.0",
     "pouchdb-adapter-idb": "^7.0.0",
     "pouchdb-adapter-memory": "^7.0.0",

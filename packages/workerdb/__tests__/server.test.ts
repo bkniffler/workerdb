@@ -1,44 +1,49 @@
 import 'jest';
-import { workerMock } from '../src';
+import { WorkerDBServerRX } from '../src';
 
 describe('index', () => {
   it('should be able to start', async () => {
-    const worker = await workerMock(collections()).init();
+    const worker = await new WorkerDBServerRX(collections(), {
+      adapter: 'memory'
+    } as any);
     await worker.close();
   });
   it('should be able to be query', async () => {
     let invocations = 0;
     let results: Array<any> = [];
-    const worker = await workerMock(collections()).init();
-    worker.listen((data: any) => {
+    const worker = new WorkerDBServerRX(collections(), {
+      adapter: 'memory'
+    } as any);
+    await worker.db;
+    worker.addListener((data: any) => {
       invocations += 1;
       if (data.error) {
         throw data.error;
       }
       results.push(data.value);
     });
-    await worker.send({ type: 'find', collection: 'bird' });
-    await worker.send({
+    await worker.exec({ type: 'find', collection: 'bird' });
+    await worker.exec({
       type: 'insert',
       value: { name: 'Filou' },
       collection: 'bird'
     });
-    await worker.send({
+    await worker.exec({
       type: 'insert',
       value: { name: 'Filou4' },
       collection: 'bird'
     });
-    await worker.send({
+    await worker.exec({
       type: 'insert',
       value: { name: 'Filou3' },
       collection: 'bird'
     });
-    await worker.send({
+    await worker.exec({
       type: 'insert',
       value: { name: 'Filou1' },
       collection: 'bird'
     });
-    await worker.send({
+    await worker.exec({
       type: 'find',
       collection: 'bird',
       value: { sort: 'name' }
@@ -64,19 +69,22 @@ describe('index', () => {
   it('should be able to live query', async () => {
     let invocations = 0;
     let results: Array<any> = [];
-    const worker = await workerMock(collections()).init();
-    worker.listen((data: any) => {
+    const worker = new WorkerDBServerRX(collections(), {
+      adapter: 'memory'
+    } as any);
+    await worker.db;
+    worker.addListener((data: any) => {
       invocations += 1;
       results.push(data.value);
     });
-    await worker.send({ id: 1, type: 'find', live: true, collection: 'bird' });
-    await worker.send({
+    await worker.exec({ id: 1, type: 'find', live: true, collection: 'bird' });
+    await worker.exec({
       type: 'insert',
       value: { name: 'Filou' },
       collection: 'bird'
     });
-    await worker.send({ id: 1, type: 'stop', live: true, collection: 'bird' });
-    await worker.send({
+    await worker.exec({ id: 1, type: 'stop', live: true, collection: 'bird' });
+    await worker.exec({
       type: 'insert',
       value: { name: 'Filou' },
       collection: 'bird'
@@ -87,12 +95,15 @@ describe('index', () => {
   it('should be able to call custom', async () => {
     let invocations = 0;
     let results: Array<any> = [];
-    const worker = await workerMock(collections()).init();
-    worker.listen((data: any) => {
+    const worker = await new WorkerDBServerRX(collections(), {
+      adapter: 'memory'
+    } as any);
+    await worker.db;
+    worker.addListener((data: any) => {
       invocations += 1;
       results.push(data.value);
     });
-    await worker.send({
+    await worker.exec({
       id: 1,
       type: 'custom',
       collection: 'bird'
@@ -103,13 +114,16 @@ describe('index', () => {
   it('should be able to throw if method not found', async () => {
     let invocations = 0;
     let results: Array<any> = [];
-    const worker = await workerMock(collections()).init();
-    worker.listen((data: any) => {
+    const worker = await new WorkerDBServerRX(collections(), {
+      adapter: 'memory'
+    } as any);
+    await worker.db;
+    worker.addListener((data: any) => {
       invocations += 1;
       results.push(data.value);
     });
     try {
-      await worker.send({
+      await worker.exec({
         id: 1,
         type: 'custom2',
         live: true,

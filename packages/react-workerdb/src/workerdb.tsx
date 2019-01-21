@@ -1,15 +1,11 @@
 import * as React from 'react';
-import { WorkerDB, WorkerDBWorker } from 'workerdb';
+import { WorkerDBClientRX } from 'workerdb';
 import Context from './context';
 import SyncContext from './sync/context';
 import render, { RenderProps } from './factory/render';
 
-interface WorkerDBCreateWorker {
-  (): WorkerDBWorker;
-}
-
-interface ReactWorkerDBProps extends RenderProps<WorkerDB> {
-  worker: WorkerDBCreateWorker;
+interface ReactWorkerDBProps extends RenderProps<WorkerDBClientRX> {
+  worker: () => WorkerDBClientRX;
   name?: string;
   adapter?: string;
   authorization?: string;
@@ -22,25 +18,33 @@ export default class ReactWorkerDB extends React.Component<ReactWorkerDBProps> {
     db: any;
     syncing: boolean;
     error: Error | null;
+    ready: boolean;
+    closed: boolean;
   } = {
+    closed: false,
+    ready: false,
     db: null,
     syncing: false,
     error: null
   };
-  db: WorkerDB;
+  db: WorkerDBClientRX;
   key: Number;
 
   init = async (props: ReactWorkerDBProps, reInit = false) => {
-    const { onReady, worker, name = 'db', adapter, authorization } = props;
-
-    if (worker['db'] && !reInit && !worker['db'].terminated) {
-      worker['db'].cancelTermination = true;
-      const db = worker['db'];
+    ('kopok');
+    // const { onReady, worker, name = 'db', adapter, authorization } = props;
+    const { worker } = props;
+    const db = worker();
+    db.options.onError = this.onError as any;
+    db.options.onReady = this.onReady as any;
+    // this.setState({ db });
+    if (db) {
+      /*worker['db'].cancelTermination = true;
+      const db = worker.db;
       db.onError = this.onSyncing;
-      db.onSyncing = this.onError;
-      this.setState({ db });
-    } else {
-      const db = await WorkerDB.create(
+      db.onSyncing = this.onError;*/
+    } /*else {
+      const db = await WorkerDBClientRX.create(
         typeof worker === 'function' ? worker() : worker,
         {
           name,
@@ -56,7 +60,7 @@ export default class ReactWorkerDB extends React.Component<ReactWorkerDBProps> {
       if (onReady) {
         onReady(db);
       }
-    }
+    }*/
   };
 
   async componentDidMount() {
@@ -64,6 +68,12 @@ export default class ReactWorkerDB extends React.Component<ReactWorkerDBProps> {
   }
 
   onSyncing = (syncing: boolean) => this.setState({ syncing });
+  onReady = (db: any) => {
+    this.setState({ db });
+    if (this.props.onReady) {
+      this.props.onReady(db);
+    }
+  };
   onError = (error: Error) => {
     if (this.props.onError) {
       this.props.onError(error);

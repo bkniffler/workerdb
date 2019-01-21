@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { WorkerDB } from 'workerdb';
-import { stringify } from '../utils';
-import Context from '../context';
+import { WorkerDBClientRX } from 'workerdb';
+import { stringify } from './utils';
+import Context from './context';
 
 interface IUseQuery<T> {
   value: T;
@@ -28,7 +28,7 @@ function useQuery<T = any, T2 = T>(
     loading: true
   } as any);
   const { disabled = false, transformer, args } = options;
-  const context = React.useContext(Context) as WorkerDB;
+  const context = React.useContext(Context) as WorkerDBClientRX;
 
   function useFindChange(error: Error | null, value: any) {
     if (error) {
@@ -44,7 +44,7 @@ function useQuery<T = any, T2 = T>(
   const skip = !context || !context.query || disabled;
   React.useEffect(
     skip ? () => {} : () => context.query(type, method, args, useFindChange),
-    [type, method, stringify(args)]
+    [context, type, method, stringify(args)]
   );
 
   return disabled

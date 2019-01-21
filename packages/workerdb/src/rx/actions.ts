@@ -1,0 +1,15 @@
+export type IWorkerActionType =
+  | 'error'
+  | 'ready'
+  | 'syncing'
+  | 'init'
+  | 'close'
+  | 'reset'
+  | 'stop'
+  | 'active'
+  | 'find'
+  | 'findOne'
+  | 'remove'
+  | 'insert'
+  | 'upsert'
+  | 'update';

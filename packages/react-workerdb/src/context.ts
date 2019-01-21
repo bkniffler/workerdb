@@ -1,4 +1,4 @@
 import { createContext } from 'react';
-import { WorkerDB } from 'workerdb';
+import { WorkerDBClientRX } from 'workerdb';
 
-export default createContext<WorkerDB | undefined>(undefined);
+export default createContext<WorkerDBClientRX | undefined>(undefined);

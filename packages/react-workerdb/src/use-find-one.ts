@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { WorkerDB } from 'workerdb';
-import { stringify } from '../utils';
-import Context from '../context';
+import { WorkerDBClientRX } from 'workerdb';
+import { stringify } from './utils';
+import Context from './context';
 
 interface IUseFindOne<T> {
   value: T;
@@ -18,7 +18,7 @@ function useFindOne<T = any, T2 = T>(
     IUseFindOne<T2>,
     (newValue: IUseFindOne<T2>) => void
   ] = React.useState({ value: null, error: undefined, loading: true } as any);
-  const context = React.useContext(Context) as WorkerDB;
+  const context = React.useContext(Context) as WorkerDBClientRX;
 
   function useFindChange(error: Error | null, value: any) {
     if (error) {
@@ -35,7 +35,7 @@ function useFindOne<T = any, T2 = T>(
     context && context.query
       ? () => context.query(type, 'findOne', args, useFindChange)
       : () => {},
-    [type, stringify(args)]
+    [context, type, stringify(args)]
   );
 
   return [value, error, loading];

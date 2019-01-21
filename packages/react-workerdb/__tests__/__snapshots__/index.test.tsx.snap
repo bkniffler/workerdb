@@ -14,6 +14,5 @@ exports[`index should work 1`] = `
   <span>
     Oscar2
   </span>
-  Filou
 </div>
 `;
