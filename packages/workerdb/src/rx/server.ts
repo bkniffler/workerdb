@@ -46,12 +46,13 @@ export class WorkerDBServerRX extends WorkerDBServerCore {
         return rx;
       };
     }
-    if (this.options.autoInit !== false) {
+    /*if (this.options.autoInit !== false) {
       this.init(this.options);
-    }
+    }*/
   }
 
-  init = async (data: any, ref?: string) => {
+  init = async (data: any = {}, ref?: string) => {
+    data = { ...this.options, ...data };
     try {
       this.db = this.createDB(data)
         .then(db => {

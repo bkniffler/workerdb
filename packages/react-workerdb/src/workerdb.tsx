@@ -31,12 +31,15 @@ export default class ReactWorkerDB extends React.Component<ReactWorkerDBProps> {
   key: Number;
 
   init = async (props: ReactWorkerDBProps, reInit = false) => {
-    ('kopok');
     // const { onReady, worker, name = 'db', adapter, authorization } = props;
     const { worker } = props;
     const db = worker();
     db.options.onError = this.onError as any;
-    db.options.onReady = this.onReady as any;
+    // db.options.onReady = this.onReady as any;
+    this.setState({ db: await db.init() });
+    if (this.props.onReady) {
+      this.props.onReady(db);
+    }
     // this.setState({ db });
     if (db) {
       /*worker['db'].cancelTermination = true;
@@ -68,12 +71,7 @@ export default class ReactWorkerDB extends React.Component<ReactWorkerDBProps> {
   }
 
   onSyncing = (syncing: boolean) => this.setState({ syncing });
-  onReady = (db: any) => {
-    this.setState({ db });
-    if (this.props.onReady) {
-      this.props.onReady(db);
-    }
-  };
+
   onError = (error: Error) => {
     if (this.props.onError) {
       this.props.onError(error);

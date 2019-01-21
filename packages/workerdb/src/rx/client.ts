@@ -138,10 +138,10 @@ export class WorkerDBClientRX extends WorkerDBServerCore {
     return new Proxy({ method: true }, handler);
   };
 
-  /*init = async (value: any) => {
+  init = async (value: any = {}) => {
     await this.query('', 'init', value);
     return this;
-  };*/
+  };
 
   reset = async () => {
     await this.query('', 'reset', {});

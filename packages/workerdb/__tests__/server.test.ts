@@ -3,9 +3,10 @@ import { WorkerDBServerRX } from '../src';
 
 describe('index', () => {
   it('should be able to start', async () => {
-    const worker = await new WorkerDBServerRX(collections(), {
+    const worker = new WorkerDBServerRX(collections(), {
       adapter: 'memory'
     } as any);
+    await worker.init();
     await worker.close();
   });
   it('should be able to be query', async () => {
@@ -14,6 +15,7 @@ describe('index', () => {
     const worker = new WorkerDBServerRX(collections(), {
       adapter: 'memory'
     } as any);
+    await worker.init();
     await worker.db;
     worker.addListener((data: any) => {
       invocations += 1;
@@ -72,6 +74,7 @@ describe('index', () => {
     const worker = new WorkerDBServerRX(collections(), {
       adapter: 'memory'
     } as any);
+    await worker.init();
     await worker.db;
     worker.addListener((data: any) => {
       invocations += 1;
@@ -98,6 +101,7 @@ describe('index', () => {
     const worker = await new WorkerDBServerRX(collections(), {
       adapter: 'memory'
     } as any);
+    await worker.init();
     await worker.db;
     worker.addListener((data: any) => {
       invocations += 1;
@@ -117,6 +121,7 @@ describe('index', () => {
     const worker = await new WorkerDBServerRX(collections(), {
       adapter: 'memory'
     } as any);
+    await worker.init();
     await worker.db;
     worker.addListener((data: any) => {
       invocations += 1;
