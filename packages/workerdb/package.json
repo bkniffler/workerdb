@@ -1,6 +1,6 @@
 {
   "name": "workerdb",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "sideEffects": false,
   "license": "MIT",
   "main": "lib",
