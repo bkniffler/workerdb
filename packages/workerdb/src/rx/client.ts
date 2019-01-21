@@ -1,5 +1,6 @@
 import { IWorkerActionType } from './actions';
 import { WorkerDBServerCore } from '../core';
+import * as hyperid from 'hyperid';
 
 export interface IWorkerDBWorker {
   onerror: ((this: any, ev: any) => any) | null;
@@ -39,10 +40,10 @@ export interface IWorkerDBCallback {
 export class WorkerDBClientRX extends WorkerDBServerCore {
   options: IWorkerDBOptions = {};
   subscriptions = {};
-  ref = 0;
   terminateIn5: Number;
   isReady = false;
   isClosed = false;
+  generateID = hyperid();
 
   constructor(options?: IWorkerDBOptions) {
     super();
@@ -56,8 +57,7 @@ export class WorkerDBClientRX extends WorkerDBServerCore {
     value: any,
     cb?: IWorkerDBCallback
   ) => {
-    const { ref } = this;
-    this.ref += 1;
+    const ref = this.generateID();
 
     const listener = (callback: IWorkerDBCallback) => (data: any) => {
       if (data && data.live === false) {
