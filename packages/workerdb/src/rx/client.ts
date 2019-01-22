@@ -117,6 +117,7 @@ export class WorkerDBClientRX extends WorkerDBServerCore {
       }
     } else if (data.type === 'close') {
       this.isClosed = true;
+      this.terminated = true;
       if (this.options.onClosed) {
         this.options.onClosed();
       }
@@ -161,7 +162,6 @@ export class WorkerDBClientRX extends WorkerDBServerCore {
             await this.query('', 'close', {});
           } catch (e) {}
           // this.worker.terminate();
-          this.terminated = true;
           this.cancelTermination = false;
         }
         yay(this);

@@ -19,6 +19,7 @@ export interface IRxDatabaseCreatorWithAuth extends RxDatabaseCreator {
   init?: Function;
   autoInit?: boolean;
   authorization?: string;
+  onError?: (error: any) => void;
 }
 
 RxDB.plugin(require('pouchdb-adapter-http'));
@@ -53,9 +54,14 @@ export class WorkerDBServerRX extends WorkerDBServerCore {
 
   init = async (data: any = {}, ref?: string) => {
     data = { ...this.options, ...data };
+    if (this.db) {
+      return this.db;
+    }
     try {
+      let d: any;
       this.db = this.createDB(data)
         .then(db => {
+          d = db;
           if (this.options.init) {
             return this.options.init(db);
           }
@@ -63,12 +69,16 @@ export class WorkerDBServerRX extends WorkerDBServerCore {
         })
         .then(db => {
           this.listener({ type: 'ready', ref });
-          return db;
+          return db || d;
         });
+      return this.db;
     } catch (error) {
+      if (this.options.onError) {
+        this.options.onError(error);
+      }
       this.listener({ type: 'error', ref, error });
     }
-    return;
+    return this.db;
   };
 
   close = async (ref?: string) => {
