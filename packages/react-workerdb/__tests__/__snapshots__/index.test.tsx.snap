@@ -16,3 +16,20 @@ exports[`index should work 1`] = `
   </span>
 </div>
 `;
+
+exports[`index should work multi 1`] = `
+<div>
+  <span>
+    Filou
+  </span>
+  <span>
+    Oscar
+  </span>
+  <span>
+    Oscar1
+  </span>
+  <span>
+    Oscar2
+  </span>
+</div>
+`;

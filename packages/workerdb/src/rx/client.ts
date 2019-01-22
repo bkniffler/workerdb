@@ -110,7 +110,7 @@ export class WorkerDBClientRX extends WorkerDBServerCore {
       this.options.onSyncing(data.value);
     } else if (data.type === 'error' && this.options.onError) {
       this.options.onError(data.error);
-    } else if (data.type === 'ready') {
+    } else if (data.type === 'ready' && !this.isReady) {
       this.isReady = true;
       if (this.options.onReady) {
         this.options.onReady(this);

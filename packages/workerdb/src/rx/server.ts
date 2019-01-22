@@ -55,6 +55,7 @@ export class WorkerDBServerRX extends WorkerDBServerCore {
   init = async (data: any = {}, ref?: string) => {
     data = { ...this.options, ...data };
     if (this.db) {
+      this.listener({ type: 'ready', ref });
       return this.db;
     }
     try {
