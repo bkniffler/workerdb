@@ -1,7 +1,10 @@
 import { WorkerDBServerCore } from './core';
 
-export function createElectronServer(server: WorkerDBServerCore, window: any) {
-  const { ipcMain } = require('electron');
+export function createElectronServer(
+  server: WorkerDBServerCore,
+  ipcMain: any,
+  window: any
+) {
   server.addListener((data: any) => window.webContents.send('workerdb', data));
   ipcMain.on('workerdb', (event: any, data: any) => {
     server.exec(data);
@@ -9,8 +12,10 @@ export function createElectronServer(server: WorkerDBServerCore, window: any) {
   return server;
 }
 
-export function createElectronClient(client: WorkerDBServerCore) {
-  const { ipcRenderer } = require('electron');
+export function createElectronClient(
+  client: WorkerDBServerCore,
+  ipcRenderer: any
+) {
   client.addListener((data: any) => ipcRenderer.send('workerdb', data));
   ipcRenderer.on('workerdb', (event: any, data: any) => {
     client.exec(data);

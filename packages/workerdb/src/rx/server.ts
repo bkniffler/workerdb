@@ -58,27 +58,24 @@ export class WorkerDBServerRX extends WorkerDBServerCore {
       this.listener({ type: 'ready', ref });
       return this.db;
     }
-    try {
-      let d: any;
-      this.db = this.createDB(data)
-        .then(db => {
-          d = db;
-          if (this.options.init) {
-            return this.options.init(db);
-          }
-          return db;
-        })
-        .then(db => {
-          this.listener({ type: 'ready', ref });
-          return db || d;
-        });
-      return this.db;
-    } catch (error) {
-      if (this.options.onError) {
-        this.options.onError(error);
-      }
-      this.listener({ type: 'error', ref, error });
-    }
+    let d: any;
+    this.db = this.createDB(data)
+      .then(db => {
+        d = db;
+        if (this.options.init) {
+          return this.options.init(db);
+        }
+        return db;
+      })
+      .then(db => {
+        this.listener({ type: 'ready', ref });
+        return db || d;
+      })
+      .catch(error => {
+        console.error('Error in server initialization', error);
+        this.listener({ type: 'error', error, ref });
+        return error;
+      });
     return this.db;
   };
 
@@ -228,7 +225,9 @@ export class WorkerDBServerRX extends WorkerDBServerCore {
             type,
             value: Array.isArray(value)
               ? value.map(x => x.toJSON())
-              : value.toJSON()
+              : value
+              ? value.toJSON()
+              : null
           });
         });
         return query.exec();
@@ -241,7 +240,9 @@ export class WorkerDBServerRX extends WorkerDBServerCore {
             type,
             value: Array.isArray(value)
               ? value.map(x => x.toJSON())
-              : value.toJSON()
+              : value
+              ? value.toJSON()
+              : null
           })
         )
         .catch((error: Error) =>
@@ -270,7 +271,9 @@ export class WorkerDBServerRX extends WorkerDBServerCore {
             type,
             value: Array.isArray(value)
               ? value.map(x => x.toJSON())
-              : value.toJSON()
+              : value
+              ? value.toJSON()
+              : null
           })
         )
         .catch((error: Error) =>
@@ -296,7 +299,7 @@ export class WorkerDBServerRX extends WorkerDBServerCore {
             this.listener({
               ref,
               type,
-              value: value.toJSON()
+              value: value ? value.toJSON() : null
             })
           )
           .catch((error: Error) =>
@@ -313,7 +316,7 @@ export class WorkerDBServerRX extends WorkerDBServerCore {
           this.listener({
             ref,
             type,
-            value: value.toJSON()
+            value: value ? value.toJSON() : null
           })
         )
         .catch((error: Error) =>

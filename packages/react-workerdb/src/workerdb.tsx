@@ -73,21 +73,22 @@ export default class ReactWorkerDB extends React.Component<ReactWorkerDBProps> {
   onSyncing = (syncing: boolean) => this.setState({ syncing });
 
   onError = (error: Error) => {
+    console.error('Error in workerdb', error);
     if (this.props.onError) {
       this.props.onError(error);
     }
-    this.setState({ error });
+    // this.setState({ error });
   };
 
-  componentWillReceiveProps(newProps: ReactWorkerDBProps) {
+  /*componentWillReceiveProps(newProps: ReactWorkerDBProps) {
     if (newProps.authorization !== this.props.authorization) {
       this.init(newProps, true);
     }
-  }
+  }*/
 
   componentWillUnmount() {
     if (this.state.db) {
-      this.state.db.close();
+      // this.state.db.close();
     }
   }
 

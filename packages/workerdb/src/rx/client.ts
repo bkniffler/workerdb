@@ -2,6 +2,7 @@ import { IWorkerActionType } from './actions';
 import { WorkerDBServerCore } from '../core';
 import * as hyperid from 'hyperid';
 
+console.log('VERSIOn', 0.5);
 export interface IWorkerDBWorker {
   onerror: ((this: any, ev: any) => any) | null;
   onmessage: ((this: any, ev: any) => any) | null;
@@ -140,7 +141,8 @@ export class WorkerDBClientRX extends WorkerDBServerCore {
   };
 
   init = async (value: any = {}) => {
-    await this.query('', 'init', value);
+    const init = await this.query('', 'init', value);
+    console.log(init);
     return this;
   };
 

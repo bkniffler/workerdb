@@ -1,5 +1,5 @@
 import 'jest';
-import { WorkerDBServerRX, WorkerDBClientRX, createLocal } from '../src';
+import { createLocal, WorkerDBServerRX, WorkerDBClientRX } from '../src';
 
 describe('index', () => {
   it('multiple clients', async () => {
